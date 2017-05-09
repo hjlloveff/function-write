@@ -1,0 +1,62 @@
+{%- import 'add_punctuation.html' as p -%}
+
+{%- macro search_by_keywords(keyword, keyword_orig, day_temp, night_temp, sky_value, wind_level, aqi, weekday_num, is_future) -%}
+    {%- if keyword == "temperature" -%}
+        {%- set tem_short_sen = temperature.description_short(night_temp, day_temp) -%}
+        {{- tem_short_sen + p.end("。", [tem_short_sen]) -}}  {# 18~22度。 #}
+
+    {%- elif (keyword == "rain") or (keyword == "umbrella") -%}
+        {%- if "rain" in sky_value -%}
+            {%- set sky_short_sen = sky.description(sky_value) -%}
+            {%- set outdoor_sug_sen = suggestion.outdoor(sky_value, 0, 0, weekday_num) -%}
+            {{- sky_short_sen + p.mdl("，", sky_short_sen, [outdoor_sug_sen]) + outdoor_sug_sen -}}  {# 小雨，怕你淋湿，出门要带伞哦 #}
+        {%- else -%}
+            {%- set result =
+            [
+                "没有雨，当然不用带伞了，啦啦啦~",
+                "不会下雨，当然不用带伞了，啦啦啦~",
+                "不会下雨，不用害怕被淋湿了~",
+                "不下雨，难得不下雨，有什么安排吗？",
+                "不下雨，不用担心打湿鞋子啦~",
+                "不会下雨，空气清爽哦！",
+                "不下雨，哎呀，土地公公要没水喝了~",
+            ]-%}
+            {{- result | random -}}
+        {%- endif -%}
+
+    {%- elif (keyword == "snow") -%}
+        {%- if "snow" in sky_value -%}
+            {%- set sky_short_sen = sky.description(sky_value) -%}
+            {%- set outdoor_sug_sen = suggestion.outdoor(sky_value, 0, 0, weekday_num) -%}
+            {{- sky_short_sen + p.mdl("，", sky_short_sen, [outdoor_sug_sen]) + outdoor_sug_sen -}}  {# 小雨，怕你淋湿，出门要带伞哦 #}
+        {%- else -%}
+            {%- set result = "掐指一算，木有雪啦~~" -%}
+            {{- result -}}
+        {%- endif -%}
+
+    {%- elif (keyword == "smog") -%}
+        {%- if aqi != None -%}
+            {%- set result =
+            [
+                "AQI指数是%d。" % aqi,
+            ] -%}
+        {%- elif is_future -%}
+            {%- set result =
+            [
+                "%s的情况？亲爱的，原谅我无法未卜先知，雾霾情况只能查询当天的哦。" % keyword_orig,
+            ] -%}
+        {%- else -%}
+            {%- set result =
+            [
+                "%s的情况？~~(>_<)~~，小影找不到该地区的雾霾数据~" % keyword_orig,
+                "%s的情况？努力找了一圈，还是没有找到该地区的雾霾情况，小影也没办法了~" % keyword_orig,
+            ] -%}
+        {%- endif -%}
+        {{ result | random }}
+
+    {%- elif (keyword == "wind") -%}
+        {%- set wind_short_sen = wind.description_short(wind_level) -%}
+        {{- wind_short_sen + p.end("。", [wind_short_sen]) -}}  {# 风很大的，这么大的风我真是头一次见。 #}
+    {%- endif -%}
+
+{%- endmacro -%}

@@ -1,0 +1,80 @@
+
+{# add punctuation in the front #}
+{%- macro front(punctuation, sentence) -%}
+    {%- if sentence == "" -%}
+        {%- set result = "" -%}
+    {%- else -%}
+        {%- set result = punctuation + sentence -%}
+    {%- endif -%}
+{{result}}
+{%- endmacro -%}
+
+{# add punctuation in the back #}
+{%- macro back(sentence, punctuation) -%}
+    {%- if sentence == "" -%}
+        {%- set result = "" -%}
+    {%- else -%}
+        {%- set result = sentence + punctuation -%}
+    {%- endif -%}
+{{result}}
+{%- endmacro -%}
+
+
+
+{%- macro if_any_internal(sentences) -%}
+    {%- for sen in sentences -%}
+        {%- if (sen) and (sen!="") -%}
+            TRUE_EXISTS
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro if_any(sentences) -%}
+    {%- set any = if_any_internal(sentences) | length -%}
+    {%- if any != 0 -%}
+        TRUE
+    {%- else -%}
+        FALSE
+    {%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro if_all_internal(sentences) -%}
+    {%- for sen in sentences -%}
+        {%- if (not sen) or (sen=="") -%}
+            FALSE_EXISTS
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro if_all(sentences) -%}
+    {%- set all = if_all_internal(sentences) | length -%}
+    {%- if all != 0 -%}
+        FALSE
+    {%- else -%}
+        TRUE
+    {%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro mdl(punctuation, sentence_before_punc, sentences_after_punc) -%}
+    {%- if sentence_before_punc and if_any(sentences_after_punc) == "TRUE" -%}
+{{punctuation}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro end(punctuation, sentences_before_punc) -%}
+    {%- if if_any(sentences_before_punc) == "TRUE" -%}
+{{punctuation}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro prg(punc0, sen1, punc1, sen2, punc2, sen3, punc3) -%}
+    {{- end(punc0, [sen1, sen2, sen3]) -}}
+    {{- sen1 -}}
+    {{- mdl(punc1, sen1, [sen2, sen3]) -}}
+    {{- sen2 -}}
+    {{- mdl(punc2, sen2, [sen3]) -}}
+    {{- sen3 -}}
+    {{- end(punc3, [sen1, sen2, sen3]) -}}
+{%- endmacro -%}

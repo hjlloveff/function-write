@@ -1,0 +1,114 @@
+{#----- 初始化需要的json值 -----#}
+{%- set city_name = general.place.city_name -%}
+{%- set weekday = general.time.weekday -%}
+{%- set time_hour = general.time.hour -%}
+
+{%- set keyword_std = None -%}
+{%- set keyword_orig = None -%}
+{%- if general.keywords|length != 0 -%}
+    {%- set keyword_std = general.keywords[0].std_tag -%}
+    {%- set keyword_orig = general.keywords[0].orig_word -%}
+{%- endif -%}
+
+{%- set min_tem = weather.data.today.now.min_temperature -%}
+{%- set max_tem = weather.data.today.now.max_temperature -%}
+{%- set day_tem = weather.data.today.day.temperature -%}
+{%- set night_tem = weather.data.today.night.temperature -%}
+{%- set day_sky = weather.data.today.day.sky -%}
+{%- set night_sky = weather.data.today.night.sky -%}
+
+{%- if time_hour >= 19 -%}
+    {%- set sky_val = night_sky -%}
+{%- else -%}
+    {%- set sky_val = day_sky -%}
+{%- endif -%}
+
+{%- set day_wind_level = weather.data.today.day.wind_level -%}
+{%- set night_wind_level = weather.data.today.night.wind_level -%}
+{%- set day_aqi = weather.data.today.now.aqi -%}
+{%- set yes_day_tem = weather.data.past.yesterday.day.temperature -%}
+
+{%- set gender = user.gender -%}
+{%- set sugg_uv_short = weather.data.today.suggestions.uv.value -%}
+{%- set sugg_uv_sent = weather.data.today.suggestions.uv.text -%}
+{%- set sugg_flu_short = weather.data.today.suggestions.flu.value -%}
+{%- set sugg_flu_sent = weather.data.today.suggestions.flu.text -%}
+{%- set sugg_cloth_short = weather.data.today.suggestions.cloth.value -%}
+{%- set sugg_cloth_sent = weather.data.today.suggestions.cloth.text -%}
+
+{%- set day_uv = weather.data.today.day.uv -%}
+{%- set now_tem = weather.data.today.now.temperature -%}
+
+{%- set sky_insight = "" -%}
+
+{%- set air_insight_value = "" -%}
+{%- set air_insight_status = "" -%}
+{%- set air_insight_dur = "" -%}
+
+{#---------- tmrw = tomorrow | tdat = The Day After Tomorrow = 后天 --------------#}
+{%- set sky_tmrw = weather.data.future.week.day_sky[1] -%}
+{%- set sky_tdat = weather.data.future.week.day_sky[2] -%}
+
+{%- set aqi_tmrw = weather.data.future.week.aqi_level[1] -%}
+{%- set aqi_tdat = weather.data.future.week.aqi_level[2] -%}
+
+{%- set wind_level_tmrw = weather.data.future.week.day_wind_level[1] -%}
+{%- set wind_level_tdat = weather.data.future.week.day_wind_level[2] -%}
+
+{%- set max_tem_tmrw = weather.data.future.week.max_temperature[1] -%}
+{%- set min_tem_tmrw = weather.data.future.week.min_temperature[1] -%}
+{%- set max_tem_tdat = weather.data.future.week.max_temperature[2] -%}
+{%- set min_tem_tdat = weather.data.future.week.min_temperature[2] -%}
+
+
+{#----- Main Sentences -----#}
+{%- set text_keyword_ans = keywords.search_by_keywords(keyword_std, keyword_orig, max_tem, min_tem, day_sky, day_wind_level, day_aqi, weekday) -%}
+
+{%- set text_city    = general.place.city_name -%}
+{%- set text_sky     = p.back(sky.description(sky_val), "，") -%}
+{%- set text_wind    = wind.description(day_wind_level) -%}
+{%- set text_sky_in  = sky.insight(sky_insight) -%}
+{%- set text_tem_prg = temperature.tem_paragraph(min_tem, max_tem, now_tem, day_tem, yes_day_tem) -%}
+{%- set text_sug_com = suggestion.weathercn_combination(sugg_uv_short, sugg_uv_sent, sugg_flu_short, sugg_flu_sent, sugg_cloth_short, sugg_cloth_sent, gender) -%}
+{%- set text_air     = air.description(day_aqi, air_insight_status, air_insight_dur, air_insight_value) -%}
+{%- set text_sug_out = suggestion.outdoor(sky_val, day_wind_level, day_aqi, weekday) -%}
+{%- set text_tomo    = suggestion.tomorrow_weather(weekday,time_hour,sky_tmrw,wind_level_tmrw,min_tem_tmrw,max_tem_tmrw) -%}
+
+{%- if weekday == 5 -%}
+    {%- set text_ending = suggestion.weekend_weather(weekday,
+            sky_tmrw, aqi_tmrw, wind_level_tmrw, min_tem_tmrw, max_tem_tmrw,
+            sky_tdat, aqi_tdat, wind_level_tdat, min_tem_tdat, max_tem_tdat) -%}
+{%- else -%}
+    {%- set text_ending = suggestion.good_bless(day_sky, day_aqi, day_wind_level) -%}
+{%- endif -%}
+
+
+{#----- order1 -----#}
+{%- macro order1(city, sky, wind, sky_in, tem_prg, com_sug, air, sug_out) -%}
+{{- city + sky + wind + sky_in + tem_prg + com_sug + air + sug_out -}}
+{%- endmacro -%}
+
+
+{#----- order2 -----#}
+{%- macro order2(city, sky, wind, sky_in, tem_prg, com_sug, air, sug_out) -%}
+    {{- city + sky + sky_in + tem_prg + com_sug + wind + air + sug_out -}}
+{%- endmacro -%}
+
+
+{#----- Main Template -----#}
+
+{%- set keyword_ans = p.prg("今天", text_keyword_ans) -%}
+{%- set order = [order1, order2] | random -%}
+{%- set today_main = order(text_city, text_sky, text_wind, text_sky_in, text_tem_prg, text_sug_com, text_air, text_sug_out) -%}
+
+{%- if keyword_ans -%}
+    {{- p.prg("[", keyword_ans, "],[", "完整预报：" + today_main, "],[", "", "]") -}}
+{%- else -%}
+
+    {%- if text_tomo -%}
+        {%- set text_ending = "" -%}
+    {%- endif -%}
+
+    {{- p.prg("[", today_main, "],[", text_tomo, "],[", text_ending, "]") -}}
+{%- endif -%}
+

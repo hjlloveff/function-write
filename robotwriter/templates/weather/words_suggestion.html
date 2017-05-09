@@ -1,0 +1,402 @@
+{%- import 'add_punctuation.html' as p -%}
+
+{%- macro outdoor(sky, wind_level, aqi, weekday) -%}
+    {%- set result = [""] -%}
+    {#---------------阴、小雪、小雨夹雪、中风--------------#}
+    {#%- if sky in ("scattered_clouds", "light_snow")  or  ( aqi >= 100 and aqi <= 150 ) or  wind_level in (4, 5) -%#}
+
+
+    {#---------------小雨--------------#}
+    {%- if sky == "light_rain" -%}
+        {%- set result =
+        [
+            "怕你淋湿，出门要带伞哦。",
+            "带上小花伞，不要让小雨欺负了哦^_^",
+            "出门带上伞吧，弄湿发型多不好。",
+            "雨虽小，不过以防万一还是请带上伞。",
+        ] -%}
+    {%- endif -%}
+
+
+    {#---------------------- a condition str ----------------------#}
+    {#---------------- 中雨、大雨、中雪、暴雪、大风----------------#}
+    {%- set condition = "" -%}
+    {#-------------------- rain/snow condition --------------------#}
+    {%- if (sky) and (sky != "light_rain") and ("rain" in sky) -%}
+        {%- set condition = condition + "/big_rain" -%}
+    {%- elif sky in ("moderate_snow", "heavy_snow") -%}
+        {%- set condition = condition + "/big_snow" -%}
+    {%- else -%}
+        {%- set condition = condition + "/other_sky" -%}
+    {%- endif -%}
+    {#---------------------- wind_condition ----------------------#}
+    {%- if wind_level > 5 -%}
+        {%- set condition = condition + "/big_wind" -%}
+    {%- else -%}
+        {%- set condition = condition + "/little_wind" -%}
+    {%- endif -%}
+    {#---------------------- weekday/weekend ----------------------#}
+    {%- if weekday in (1, 2, 3, 4, 5) -%}
+        {%- set condition = condition + "/weekday" -%}
+    {%- elif weekday in (6, 7) -%}
+        {%- set condition = condition + "/weekend" -%}
+    {%- endif -%}
+
+
+    {#-----------雨|雨+风------------#}
+    {%- if condition == "/big_rain/big_wind/weekday" -%}
+        {%- set result =
+        [
+            "瓢泼大雨，快带长柄伞帮忙。"
+        ] -%}
+    {%- elif condition == "/big_rain/big_wind/weekend" -%}
+        {%- set result =
+        [
+            "雨一直下，气氛不融洽，还是别出玩耍了。",
+            "雨一直下而且还是横着下，如此鬼天气不建议出行。",
+            "超级大雨，没重要的事情就在家里安静的待着吧。",
+        ] -%}
+    {%- elif condition == "/big_rain/little_wind/weekday" -%}
+        {%- set result =
+        [
+            "怕你淋湿，记得带伞。",
+            "带伞带伞，可以遛没带伞的妹子回来！",
+        ] -%}
+    {%- elif condition == "/big_rain/little_wind/weekend" -%}
+        {%- set result =
+        [
+            "下雨天，没重要的事情就在家里安静的待着吧。",
+            "雨超大的，户外活动可以考虑取消了。",
+        ] -%}
+    {#-----------雪|雪+风------------#}
+    {%- elif condition == "/big_snow/big_wind/weekday" -%}
+        {%- set result =
+        [
+            "记得带上帽子，路滑当心。",
+            "要出门的话，衣柜里翻出来什么就往身上裹吧！永远不嫌多。",
+            "登山衣，羽绒服，冲锋衣，防弹衣，有什么就往身上裹什么吧。",
+        ] -%}
+    {%- elif condition == "/big_snow/big_wind/weekend" -%}
+        {%- set result =
+        [
+            "你就别出门了，出行也要全副武装，抵御严寒。",
+            "外面风雪交加，不想被吹成雪人的话就老老实实在家呆着吧。",
+        ] -%}
+    {%- elif condition == "/big_snow/little_wind/weekday" -%}
+        {%- set result =
+        [
+            "带上帽子或伞，叮嘱下，路滑当心。",
+            "想体验一把东北之冬的可以出门去浪了。",
+            "下大雪了，约几个朋友出去好好打一仗！",
+            "建议带上帽子，以防发如雪。",
+        ] -%}
+    {%- elif condition == "/big_snow/little_wind/weekend" -%}
+        {%- set result =
+        [
+            "牵挂你，一定小心路滑。"
+        ] -%}
+    {#-----大风天-------#}
+    {%- elif condition == "/other_sky/big_wind/weekday" -%}
+        {%- set result =
+        [
+            "风超级大，多注意路面交通。"
+        ] -%}
+    {%- elif condition == "/other_sky/big_wind/weekend" -%}
+        {%- set result =
+        [
+            "风超级大，还是在家里玩耍吧。",
+            "今天没事别出去转悠，小心给吹得凌乱。",
+            "外面狂风大作，如果对自己的体格没有自信请不要出门。",
+            "风挺大的，没什么事今天就在家里玩儿吧。",
+        ] -%}
+    {%- endif -%}
+    {#------雷阵雨、冰雹、沙尘暴、雾霾污染--------#}
+    {#-%- if (aqi > 150) -%-#}
+
+{{ result | random }}
+{%- endmacro -%}
+
+
+{%- macro good_bless(sky, aqi, wind_level) -%}
+    {%- set result = [] -%}
+    {#    "祝你有个好心情。",
+        "心情好，每天都是晴天。",
+        "愿事事如意。",
+        "心有阳光，便有温暖。",
+        "完成小事是成就大事的第一步。",
+        "事情做到完美，就是艺术。",
+        "成功无捷径，努力再努力。",
+        "运用宝贵时间，努力充实自己。",
+        "人生有无穷的希望，不要轻言放弃。",
+        "心美，看什么都顺眼。",
+        "快乐是一种心情，一种自然的、积极向上的心态。",
+        "得之淡然，失之坦然。",
+        "被人思念是一种幸福，思念别人是一种温馨。",
+        "人生得意须尽欢，莫使金樽空对月。",
+        "宽容是脚前的灯，路上的光。",
+        "宽容是雪中的炭，雨中的伞。",
+        "宽容是荒漠的甘泉，夜航的灯塔。",
+        "生活如海，宽容作舟，泛舟于海，方知海之宽阔。",
+        "生活如歌，宽容是曲，和曲而歌，方知生活甜美。",
+        "生活有朝气，活得畅畅快快。",
+        "欣赏他人，就是成就自己。",
+        "人生多一份感恩，就多一份美化。",
+        "心中有爱，才能人见人爱。",
+        "继续微笑，因为生活是如此美好。",
+        "很多时候，简单就是一种幸福。",
+        "快乐是斜跨在天空上的一道彩虹。",
+        "每天笑一笑，开心乐逍遥。",
+        "生活是五颜六色，丰富多彩的。",
+        "保持年轻的心，享受阳光和温暖。",
+        "要有梦想，即使遥远。",
+    ]-%#}
+    {%- if sky == "clear_sky" and aqi < 100 and wind_level <= 3 -%}
+        {%- set result = result + [
+            "风轻云净的日子，出去透透气。",
+            "阳光明媚，出行无忧。",
+            "这么好的天气，快去户外畅快的呼吸。",
+            "好天气，好心情。",
+            "风轻云净的日子，出去晒晒太阳吧。",
+            "阳光明媚，出行愉快。",
+            "今天可是散步的好日子。",
+            "天气不错，有空出去溜一圈？",
+        ]-%}
+    {%- endif -%}
+
+    {%- set summer_ending_sentences = [
+        "不管是晴空万里，还是狂风暴雨，小影永远在这陪你。",
+        "炎热的夏天，没有什么是一支东北大板不能解决的。",
+        "蒹葭苍苍，白露为霜。所谓伊人，汗湿了衣裳！",
+        "夏日炎炎似火烧，一把蒲扇日日摇。要问为何关空调，上月电费还没交！",
+        "夏天这么热，小影现在只想钻到冰箱里面冷静一会儿！",
+        "当你的汗逆流成河，你就可以在里面游泳啦！",
+        "天一热人就容易膨胀，现在我都认不清自己是谁了，哼！",
+        "天热得就像一个蒸笼，我就像笼里的包子一样，不断地呼着热气！",
+        "听说在夏天，大裤衩和人字拖更配哦！",
+        "我站在天台看风景，他们以为我要放弃生命，其实我只是热得想吹风到天明！",
+    ]-%}
+
+    {%- set autumn_ending_sentences = [
+        "不知道秋天和春天相比谁更加凉爽呢？我投秋天一票！",
+        "秋天到了，冬天还会远吗？答：希望冬天永远不要来！",
+        "哇哦，你竟然跨过了夏天这道坎，赶紧过来凉爽一下吧！",
+        "秋天有什么！有中秋节！有国庆节！感觉全年的假日都集中在了秋天呢~",
+        "秋天到了，春节还会远吗？放假！放假！放假！",
+        "秋天啊，又是一年开学季，青春的记忆从此翻开了崭新的一页！",
+        "秋高气爽~月黑风高~咳咳，偏题了……",
+        "秋天在哪里呀？秋天在哪里？秋天在那香山的红叶里~",
+        "知道秋天最美的是什么吗？是色彩，仿佛彩虹在大地上铺开~",
+        "春夏秋冬，一年又过了一大半，时间真是永远不知道累呢！",
+        "落叶的离去是风的追逐还是树的不挽留，呐，秋天到了呢……",
+        "终于熬过了盛夏酷暑，却又迎来了秋老虎！真可谓“人算不如天算”！",
+        "秋风乍起~吹蓝了天空，吹黄了田野，吹走了炎热，吹来了凉爽……秋天，来了~",
+        "拼却挥汗如雨的春和夏，终于迎来岁月如歌的秋高气爽好天气~",
+        "萧瑟秋风今又是，触景生情，只想听一首沙宝亮的《秋意浓》……",
+        "菊花残，满地伤，你的笑容已泛黄……咋还不用脸霜~",
+        "一年好景君须记~最是橙黄橘绿时~而当下，正是秋游好时节~",
+        "太阳高悬在头顶，向日葵花海却齐刷刷地低下了头~收获的季节，到了~",
+        "我们曾在田野里歌唱在冬季盼望，终究等到这阳光下秋天的景象~",
+    ]-%}
+    
+    {%- set winter_ending_sentences = [
+        "哈哈哈，又到冬天啦，邀请你到北方来看雪~",
+        "冬天到了，又要准备放寒假啦，真是令人期待啊",
+        "冬天来，气温降，你穿上妈妈准备的爱心秋裤了吗？",
+        "真是羡慕北方的孩子，又能在冬天里打雪仗了……",
+        "每当冬天来临，小影都回想起那天雪地里打的雪仗……",
+        "算算日子，春节不远啦，红包！大红包！抢红包！！！",
+        "冬天了，南方人又准备要靠抖抗冻啦，为啥南方没有暖气？",
+        "冬天来了，南方还是艳阳高照，北方却已大雪纷飞。",
+        "冬天的北国，千里冰封，万里雪飘，想想都觉得很壮丽呢~",
+        "暑来寒往，又有一年要过去啦~",
+        "只要和你在一起，纵使大风大雪，小影的心上总是温暖的。",
+        "暑来寒往，但愿又是一场瑞雪兆丰年~",
+        "冬天里，小影只想和你在暖炉边聊聊天~",
+    ]-%}
+    
+    {%- set spring_ending_sentences = [
+        "虽说春日之景宜醉不宜醒，但春天都来了，不能再赖床了~",
+        "樱桃树拒绝不了春天的抚摸，你怎忍心拒绝春天的阳光呢？",
+        "不出去看看花园里的花红柳绿、新鲜漂亮吗，春天都来啦~",
+        "新一年的春天，还是有小影陪你赏花看日落(○'◡'○)",
+        "春夏秋冬又一春，准备好为来临的盛夏开始减肥了吗？",
+        "雪也化了，花也开了，春天都在敲你的门了~ ",
+        "在光明的景色中，突然发现~春天来啦~",
+        "你知道春天在等谁吗，你知道小影在等你吗(。◕‿◕。)",
+        "这个风和日暖的季节里，去享受满园的花香馥郁吧~~~",
+        "是时候脱下臃肿的冬装，换上朝气蓬勃的春装了吧",
+        "和你在一起，小影的春天都比别人更加明媚点呢~",
+        "大地复苏，小草含青，这韶光淑气，可不要浪费了！",
+        "春天里，小影想和你在姹紫嫣红间聊聊天~",
+        "春天来了，快点带小影出去撒野吧，小影已经迫不及待了",
+        "哈哈哈，春天来了，想邀请小影出去赏花吗(〃ω〃)",
+    ]-%}
+
+    {%- set result = result + spring_ending_sentences -%}
+
+{{ result | random }}
+{%- endmacro -%}
+
+
+{%- macro weathercn_combination(uv_short, uv_long, flu_short, flu_long, cloth_short, cloth_long, gender) -%}
+
+    {%- set use_uv = "" -%}
+    {%- if gender == "女" -%}
+        {%- if uv_short == "中等" -%}
+            {%- set use_uv = "紫外线有点强，出门记得擦防晒霜。" -%}
+
+        {%- elif uv_short == "强" -%}
+            {%- set use_uv = "紫外线强，出门记得做好防晒措施。" -%}
+
+        {%- elif uv_short == "很强" -%}
+            {%- set use_uv = "紫外线很强，如需外出，记得做好防晒措施。" -%}
+        {%- endif -%}
+    {%- endif -%}
+
+    {%- set use_flu = "" -%}
+    {%- if flu_short in ("易发", "极易发") and flu_long -%}
+        {%- set use_flu = flu_long  -%}
+    {%- endif -%}
+
+    {%- set cloth_opening = "" -%}
+    {%- if not use_uv and not use_flu and cloth_short -%}
+        {%- set cloth_opening = "天气" + cloth_short + "，" -%}
+    {%- endif -%}
+
+    {%- set use_cloth = "" -%}
+    {%- if cloth_long -%}
+        {%- set use_cloth = cloth_opening + cloth_long  -%}
+    {%- endif -%}
+
+    {{ use_uv + p.mdl(use_uv, [use_flu, use_cloth]) + use_flu + p.mdl(use_flu, [use_cloth]) + use_cloth + p.end([use_uv, use_flu, use_cloth]) }}
+{%- endmacro -%}
+
+
+{#----------有车一族的建议-------------#}
+{%- macro car(sky, aqi) -%}
+    {%- set result = [""] -%}
+    {%- if (user.has.car == None) or (user.has.car == True) -%}
+        {#-----雾霾天----#}
+        {%- if aqi > 100 -%}
+            {%- set result = ["雾霾天就不要洗车了，坐等天气放晴吧！"]-%}
+        {#-----好天气----#}
+        {%- elif sky == "clear_sky" -%}
+            {%- set result = [
+                "适宜洗车，让自己的爱车也洗个澡吧；",
+                "赶紧清洁一下自己的爱车；",
+                "爱车等着你给他洗个澡那^_^ ；",
+                "良好的天气，可以抽时间清洗一下自己的爱车那；"
+            ]-%}
+        {#-----下雨天----#}
+        {%- elif sky in ("light_rain", "heavy_rain", "moderate_rain", "rain") -%}
+            {%- set result =
+            [
+                "路滑，要小心驾驶；"
+            ]-%}
+        {#-----下雪天----#}
+        {%- elif sky in ("snow", "light_snow", "moderate_snow", "heavy_snow", "sleet") -%}
+            {%- set result =
+            [
+                "路滑，要小心驾驶；"
+            ]-%}
+        {%- endif -%}
+    {%- endif -%}
+{{ result | random }}
+{%- endmacro -%}
+
+
+{#----------紫外线防晒建议-------------#}
+{%- macro uv(uv, gender, weekday) -%}
+    {%- set sug_short = weather.data.today.suggestions.uv.value -%}
+    {%- set sug_long  = weather.data.today.suggestions.uv.text -%}
+    {%- if sug_short and sug_long -%}
+        {%- set result = [sug_long ] -%}
+    {%- else -%}
+        {%- set result = [] -%}
+    {%- endif -%}
+
+    {%- if gender == "F" -%}
+        {%- if uv <= 2 -%}
+            {%- set result =
+            [
+                "紫外线很弱，不用惧怕它的；",
+                "紫外线弱爆了，把防晒全扔掉；",
+                "紫外线可以忽略不计啦，让厚厚的防晒去见鬼；",
+                "没有紫外线，不用涂防晒；",
+                "紫外线指数为安全范围，可以不涂或少用防晒品；",
+                "紫外线？它已经去见鬼了；"
+            ]-%}
+        {%- elif uv <= 4 -%}
+            {%- set result =
+            [
+                "紫外线较弱，外出戴防护帽或太阳镜；"
+            ] -%}
+        {%- elif uv <= 6 -%}
+            {%- set result =
+            [
+                "紫外线要发威，除戴防护帽和太阳镜外，涂擦防晒霜；"
+            ] -%}
+        {%- elif uv <= 9 -%}
+            {%- set result =
+            [
+                "紫外线发飙，在上午十点至下午四点时段请避免外出活动，外出时应尽可能在遮荫处；"
+            ] -%}
+        {%- else -%}
+            {%- if weekday in (6, 7) -%}
+                {%- set result =
+                [
+                    "紫外线超暴力，尽量不外出，必须外出时，请采取全部的防护措施；"
+                ] -%}
+            {%- else -%}
+                {%- set result =
+                [
+                    "紫外线超暴力，出行时请采取全部的防护措施；"
+                ] -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endif -%}
+{{ result | random }}
+{%- endmacro -%}
+
+
+{%- macro brief_report(sky_val, min_tem, max_tem, wind_level) -%}
+	{%- set text_sky = sky.description_short(sky_val) -%}
+	{%- set text_tem = temperature.description_short(min_tem, max_tem) -%}
+	{%- set text_wind_level = wind.description_short(wind_level) -%}
+
+    {%- set result = "%s，%s，%s" % (text_sky, text_tem, text_wind_level) -%}
+    {{- result -}}
+{%- endmacro -%}
+
+
+{%- macro weekend_weather(weekday,
+        sky_sat, aqi_level_sat, wind_level_sat, min_tem_sat, max_tem_sat,
+        sky_sun, aqi_level_sun, wind_level_sun, min_tem_sun, max_tem_sun) -%}
+
+    {%- set result_sat = "周六天气" + brief_report(sky_sat, min_tem_sat, max_tem_sat, wind_level_sat) + "；" -%}
+    {%- set result_sun = "周日天气" + brief_report(sky_sun, min_tem_sun, max_tem_sun, wind_level_sun) + "。" -%}
+
+    {%- if (sky_sat == "clear_sky") and (sky_sun == "clear_sky")
+            and (aqi_level_sat <= 2) and (aqi_level_sun <= 2)
+            and (wind_level_sat <= 4) and (wind_level_sun <= 4) -%}
+        {%- set suggestion = [
+            "这么好的周末，快去户外畅快的呼吸玩耍吧！",
+            "难得周末好天气，赶紧计划游玩吧！"
+        ]-%}
+    {%- else -%}
+        {%- set suggestion = [] -%}
+    {%- endif -%}
+
+{{ result_sat }}{{ result_sun }}{{ suggestion | random }}
+{%- endmacro -%}
+
+
+{%- macro tomorrow_weather(weekday, hour, sky_tomo, wind_level_tomo, min_tem_tomo, max_tem_tomo) -%}
+    {%- if (weekday == 7) or (weekday != 5 and hour >= 17) -%}
+        {%- set result = "明日天气" + brief_report(sky_tomo, min_tem_tomo, max_tem_tomo, wind_level_tomo) + "。" -%}
+    {%- else -%}
+        {%- set result = "" -%}
+    {%- endif -%}
+{{result}}
+{%- endmacro -%}
+

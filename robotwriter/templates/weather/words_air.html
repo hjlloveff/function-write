@@ -1,0 +1,185 @@
+{%- macro trend_status() -%}
+    {%- if weather.insight.trend.aqi.status == "continue" -%}
+        {%- set sentences =
+        [
+            "延续",
+        ]-%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+
+{%- macro trend_description() -%}
+     {%- if weather.insight.trend.aqi.value <= 50 -%}
+        {%- set sentences =
+        [
+            "优",
+        ]-%}
+    {%- elif weather.insight.trend.aqi.value <= 100 -%}
+        {%- set sentences =
+        [
+            "良",
+        ]-%}
+    {%- elif weather.insight.trend.aqi.value <= 150 -%}
+        {%- set sentences =
+        [
+            "轻度污染，",
+        ]-%}
+    {%- elif weather.insight.trend.aqi.value <= 200 -%}
+        {%- set sentences =
+        [
+            "中度污染，",
+        ]-%}
+    {%- elif weather.insight.trend.aqi.value <= 300 -%}
+        {%- set sentences =
+        [
+            "重度污染，",
+        ]-%}
+    {%- elif weather.insight.trend.aqi.value <= 500 -%}
+        {%- set sentences =
+        [
+            "严重污染，",
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+
+{%- macro trend_duration() -%}
+{{ common.duration_description(weather.insight.trend.aqi.duration) }}
+{%- endmacro -%}
+
+
+{%- macro description(aqi, insight_status, insight_dur, insight_value) -%}
+    {%- set description_sentences = [""]-%}
+    {%- set suggestions =  [""] -%}
+    {%- set insight_sentences = [""]-%}
+
+
+    {#------- aqi description -------#}
+    {%- if aqi == None -%}
+    {%- elif aqi <= 50 -%}
+        {%- set description_sentences =
+        [
+            "空气好棒，快大口呼吸。",
+            "哎哟，空气不错哦，木有一丝雾霾。",
+            "空气质量超赞，心旷神怡啊！",
+            "空气质量优，快大口呼吸。",
+        ] -%}
+    {%- elif aqi <= 100 -%}
+        {%- set description_sentences =
+        [
+            "空气不错，好开心。",
+            "空气还好，不用担心。",
+            "空气质量良，不错不错。",
+        ] -%}
+    {%- elif aqi <= 150 -%}
+        {%- set description_sentences =
+        [
+            "空气轻度污染，",
+            "空气略有污染，",
+        ] -%}
+    {%- elif aqi <= 200 -%}
+        {%- set description_sentences =
+        [
+            "空气中度污染，AQI为%d，" % aqi,
+        ] -%}
+    {%- elif aqi <= 300 -%}
+        {%- set description_sentences =
+        [
+            "空气重度污染，AQI高达%d，" % aqi,
+            "空气质量堪忧，AQI高达%d，举头望明月，霾大看不见，" % aqi,
+            "空气这么差，AQI高达%d，好想念阅兵蓝啊！" % aqi,
+            "空气指数是重！度！污！染！AQI高达%d，我好想报警，" % aqi,
+        ] -%}
+    {%- elif aqi <= 500 -%}
+        {%- set description_sentences =
+        [
+            "空气严重污染，AQI高达%d，" % aqi,
+            "雾霾是报警级的，AQI高达%d，" % aqi,
+            "空气质量极其堪忧，AQI高达%d，" % aqi,
+            "不要问我今天的空气指数了，我已经咳死了，",
+            "空气质量非常糟，到了除了颗粒物什么都看不见的地步，",
+            "外面雾霾大的跟火灾现场一样，出门要三思，",
+        ] -%}
+    {%- endif -%}
+
+
+    {#------- aqi_level_insight description -------#}
+    {%- if aqi == None -%}
+    {%- elif (aqi <= 100) and (insight_status == "break") and (insight_value == 4) and (insight_dur >= 4) -%}
+        {#------- 持续四日以上的雾霾天气结束 -------#}
+        {%- set insight_sentences =
+        [
+            "持续%d天的雾霾天气终于宣告终结了，还不快到户外畅快的呼吸吗？" % insight_dur,
+            "喜大普奔！雾霾君呆了%d天终于走了。" % insight_dur,
+            "诶，没有雾霾了，连吸了%d天也不知道会不会上瘾。" % insight_dur,
+            "没有雾霾啦，动次打次动次打次户外运动动起来！"
+        ] -%}
+    {%- elif (aqi>100) and (insight_status == "continue") and (insight_value == 4) and (insight_dur >= 7) -%}
+        {#------- 持续七日以上的雾霾天气 --------#}
+        {%- set insight_sentences =
+        [
+            "雾霾已经持续%d天，提醒持续防护，" % insight_dur,
+        ] -%}
+    {%- endif -%}
+
+
+    {#------- suggestions -------#}
+    {%- if aqi == None -%}
+    {%- elif aqi > 100 -%}
+        {%- set suggestions =
+        [
+            "牵挂你的健康，外出要戴防雾霾口罩。" ,
+            "牵挂你的健康，出行戴上防雾霾口罩吧。",
+            "记挂你的身体，防雾霾口罩戴起来。",
+            "牵挂你的健康，提醒出门要戴口罩哦。",
+            "要戴防雾霾口罩，告诉老人和孩子减少出行。" ,
+            "不戴口罩嗓子可会难受哦！也告诉老人和孩子减少出行吧！",
+        ] -%}
+    {%- endif -%}
+
+    {{ description_sentences | random }}{{ insight_sentences | random }}{{ suggestions | random }}
+{%- endmacro -%}
+
+
+{%- macro description_short(aqi) -%}
+     {%- if aqi <= 50 -%}
+        {%- set sentences =
+        [
+            "优",
+        ]-%}
+    {%- elif aqi <= 100 -%}
+        {%- set sentences =
+        [
+            "良",
+        ]-%}
+    {%- elif aqi <= 150 -%}
+        {%- set sentences =
+        [
+            "轻度污染，",
+        ]-%}
+    {%- elif aqi <= 200 -%}
+        {%- set sentences =
+        [
+            "中度污染，",
+        ]-%}
+    {%- elif aqi <= 300 -%}
+        {%- set sentences =
+        [
+            "重度污染，",
+        ]-%}
+    {%- elif aqi <= 500 -%}
+        {%- set sentences =
+        [
+            "严重污染，",
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}

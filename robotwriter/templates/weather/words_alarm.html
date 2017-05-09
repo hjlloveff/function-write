@@ -1,0 +1,5 @@
+{%- macro brief_report(alarm_list) -%}
+    {%- if (alarm_list | length) != 0 -%}
+        {{- alarm_list[0].issue_content -}}
+    {%- endif -%}
+{%- endmacro -%}

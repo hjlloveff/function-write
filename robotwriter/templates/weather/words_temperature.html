@@ -1,0 +1,248 @@
+{%- import 'words_general.html' as common with context -%}
+{%- import 'add_punctuation.html' as p -%}
+
+
+{%- macro tem_paragraph(min_tem, max_tem, now_tem, day_tem, yes_day_tem) -%}
+    {%- set text_day_tem = min_max_range_description(max_tem, min_tem) -%}
+    {%- set text_now_tem = now_tem_description(now_tem) -%}
+    {%- set text_com_tem = comparison_yesterday(yes_day_tem, day_tem) -%}
+{{text_day_tem + p.mdl("，", text_day_tem, [text_now_tem, text_com_tem]) + text_now_tem + p.mdl("，", text_now_tem, [text_com_tem]) + text_com_tem + p.end("。", [text_day_tem, text_now_tem, text_com_tem]) }}
+{%- endmacro -%}
+
+
+{%- macro now_tem_description(now_tem) -%}
+    {%- if now_tem != None -%}
+        {%- set sentences =
+        [
+            "当前%d℃" % now_tem,
+            "现在%d℃" % now_tem,
+            "此刻%d℃" % now_tem,
+            "当前%d度" % now_tem,
+            "现在%d度" % now_tem,
+            "此刻%d度" % now_tem,
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro description_short(low_tem, high_tem) -%}
+    {%- if low_tem is not none and high_tem is not none -%}
+        {%- set sentences =
+        [
+            "%d℃~%d℃"     % (low_tem, high_tem),
+            "%d~%d度"     % (low_tem, high_tem),
+        ]-%}
+    {%- elif low_tem -%}
+        {%- set sentences =
+        [
+            "%.1f℃"  % low_tem,
+            "%.1f度" % low_tem,
+        ]-%}
+    {%- elif high_tem -%}
+        {%- set sentences =
+        [
+            "%.1f℃"  % high_tem,
+            "%.1f度" % high_tem,
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro min_max_range_description(max_tem, min_tem) -%}
+    {%- if (max_tem is defined) and (max_tem is not none) and (min_tem is defined) and (min_tem is not none) -%}
+        {%- set sentences =
+        [
+            "%d℃~%d℃"     % (min_tem, max_tem),
+            "气温%d℃~%d℃" % (min_tem, max_tem),
+            "全天%d℃~%d℃" % (min_tem, max_tem),
+            "%d~%d度"     % (min_tem, max_tem),
+            "气温%d~%d度" % (min_tem, max_tem),
+            "全天%d~%d度" % (min_tem, max_tem),
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro day_night_description(day_tem, night_tem) -%}
+    {%- if day_tem and night_tem -%}
+        {%- set sentences =
+        [
+            "白天平均约%d℃，晚上平均约%d℃" % (night_tem, day_tem),
+        ]-%}
+    {%- elif day_tem -%}
+        {%- set sentences =
+        [
+            "白天预测约%.1f℃" % day_tem
+        ]-%}
+    {%- else -%}
+        {%- set sentences = [] -%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro comparison_yesterday(yesterday, today) -%}
+
+    {%- if (yesterday == None) or (today == None) -%}
+        {%- set diff = None -%}
+    {%- else -%}
+        {%- set diff = today - yesterday -%}
+    {%- endif -%}
+
+    {%- if diff == None -%}
+        {%- set sentences = [] -%}
+    {%- elif diff >= 3 -%}
+        {%- set sentences =
+        [
+            "气温一夜之间骤升%d度" % diff,
+            "温度较昨天升高了%d度" % diff,
+        ]-%}
+    {%- elif diff> 0 -%}
+        {%- set sentences = [] -%}
+        {#
+            "高于昨日平均气温",
+            "气温较昨日升高%d度" % diff,
+            "气温略高于昨日",
+        #}
+    {%- elif diff <= -3 -%}
+        {%- set diff = yesterday - today -%}
+        {%- set sentences =
+        [
+            "气温一夜之间骤降%d度" % diff,
+            "较昨天一下子下降了%d度" % diff,
+            "阿嚏！一下子降温%d度" % diff,
+        ]-%}
+    {%- elif diff < 0 -%}
+        {%- set sentences = [] -%}
+        {#
+            "低于昨日平均气温",
+            "气温较昨日降低%d度" % -diff,
+        #}
+    {%- else -%}
+        {%- set sentences = [] -%}
+        {#
+            "和昨日平均气温一樣",
+            "气温与昨日持平"
+        #}
+    {%- endif -%}
+
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro comparison_week_long() -%}
+    {%- if weather.data.today.day.temperature < weather.data.past.week.avg_temperature -%}
+        {%-set result = [weather.data.past.week.avg_temperature - weather.data.today.day.temperature]-%}
+        {%- set sentences =
+        [
+            "温度与近七日相比下降了",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > weather.data.past.week.avg_temperature -%}
+        {%-set result = [weather.data.today.day.temperature - weather.data.past.week.avg_temperature]-%}
+        {%- set sentences =
+        [
+            "温度与近七日相比升高了",
+        ]-%}
+    {%- else -%}
+        {%- set sentences =
+        [
+            "温度与近七日持平",
+        ]-%}
+    {%- endif -%}
+{{ sentences | random }}{{result| random}}
+{%- endmacro -%}
+
+
+{%- macro comparison_week_short() -%}
+    {%-set result = [""]-%}
+    {%- set sentences =[""]-%}
+    {%- if weather.data.today.day.temperature < weather.data.past.week.avg_temperature -%}
+         {%-set result = [weather.data.past.week.avg_temperature - weather.data.today.day.temperature]-%}
+        {%- set sentences =
+        [
+            "低于近七日平均气温",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > weather.data.past.week.avg_temperature -%}
+         {%-set result = [weather.data.today.day.temperature - weather.data.past.week.avg_temperature]-%}
+        {%- set sentences =
+        [
+            "高于近七日平均气温",
+        ]-%}
+    {%- else -%}
+        {%- set sentences =
+        [
+            "和近七日平均气温一樣",
+        ]-%}
+    {%- endif -%}
+{{ sentences | random }}{{result| random}}
+{%- endmacro -%}
+
+
+
+{%- macro feeling_condition() -%}
+    {%- if weather.data.today.day.temperature > 26 -%}
+        {%- set sentences =
+        [
+            "很熱",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > 20 -%}
+        {%- set sentences =
+        [
+            "舒適",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > 18 -%}
+        {%- set sentences =
+        [
+            "有點冷",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > 10 -%}
+        {%- set sentences =
+        [
+            "很冷",
+        ]-%}
+    {%- elif weather.data.today.day.temperature > 0 -%}
+        {%- set sentences =
+        [
+            "會下雪",
+        ]-%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}
+
+
+{%- macro is_extreme() -%}
+{%- if weather.insight.extreme.temperature.status is defined -%}
+    {%- if weather.insight.extreme.temperature.status == "max" -%}
+        {%- set result = ["最高"] -%}
+{{ "气温为近" }}{{weather.insight.extreme.temperature.duration }}{{"日"}}{{ result | random }}{{ "；" }}
+    {%- elif weather.insight.extreme.temperature.status == "min" -%}
+        {%- set result = ["最低"] -%}
+{{ "气温为近" }}{{common.duration_description(weather.insight.extreme.temperature.duration)}}{{ result | random }}{{ "；" }}
+    {%- endif -%}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro difference_temperature(day_tem, night_tem) -%}
+    {%- set result = [""] -%}
+    {%- if (day_tem != None) and (night_tem != None) and (day_tem - night_tem >= 10) -%}
+        {%- set result =
+        [
+            "昼夜温差大，早晚出行注意增加衣物；",
+            "早穿皮袄午穿纱啊今天！",
+            "要注意，昼夜温差过大呦。",
+        ] -%}
+    {%- endif -%}
+{{ result | random }}
+{%- endmacro -%}
+
+
+

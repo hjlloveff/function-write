@@ -1,0 +1,106 @@
+{%- macro description(wind_level) -%}
+
+    {%- if wind_level == None -%}
+        {%- set wind_level_cn = [""] -%}
+        {%- set suggestion = [""] -%}
+    {%- elif wind_level <= 1 -%}
+        {%- set wind_level_cn =
+        [
+            "微风，",
+            "微风习习，",
+            "有点小风，",
+            "微风拂面，",
+        ] -%}
+        {%- set suggestion =
+        [
+            "吹着挺舒服的。",
+            "吹吹挺舒服呢。",
+            "吹着好舒服。",
+        ] -%}
+    {%- elif wind_level <= 3 -%}
+        {%- set wind_level_cn =
+        [
+            "中级风，",
+            "风有点大，",
+        ] -%}
+        {%- set suggestion =
+        [
+            "小心迷伤眼睛。",
+            "当心尘土迷到眼睛。",
+            "注意尘土飞扬。",
+        ] -%}
+    {%- elif wind_level <= 5 -%}
+        {%- set wind_level_cn =
+        [
+            "%d级强风，" % wind_level,
+            "风力%d级，" % wind_level,
+            "风力强劲，",
+            "强风来袭，",
+        ] -%}
+        {%- set suggestion =
+        [
+            "步行困难，会吹乱发型的。",
+            "走路费劲。",
+            "小心风中凌乱。",
+            "准备好接受强风的考验了吗？",
+            "要不是我这么胖早被吹走啦！",
+            "会把脸吹得好痛的。",
+            "走路走的好狼狈。",
+        ] -%}
+    {%- elif wind_level >= 6 -%}
+        {%- set wind_level_cn =
+        [
+            "%d级大风，"% wind_level,
+            "狂风大作，大到%d级，" % wind_level,
+            "疾风劲吹，%d级辣么大，"% wind_level,
+            "狂风怒吼，吼到%d级，" % wind_level,
+        ] -%}
+        {%- set suggestion =
+        [
+            "祈求不被风神带走吧！",
+            "准备好接受大风的考验了吗？",
+            "这么大的风好恐怖！",
+            "这么大的风可以坐风筝去上班啦！",
+            "这么大的风我真是头一次见。",
+        ] -%}
+    {%- else -%}
+        {%- set wind_level_cn = [] -%}
+        {%- set suggestion = [] -%}
+    {%- endif -%}
+{{ wind_level_cn | random }}{{ suggestion | random }}
+{%- endmacro -%}
+
+
+{%- macro description_short(wind_level) -%}
+    {%- if wind_level == None -%}
+        {%- set wind_level_cn = [""] -%}
+    {%- elif wind_level == 0 -%}
+        {%- set wind_level_cn =
+        [
+            "无风",
+        ] -%}
+    {%- elif wind_level <= 1 -%}
+        {%- set wind_level_cn =
+        [
+            "微风，风力%d级" % (wind_level),
+        ] -%}
+    {%- elif wind_level <= 3 -%}
+        {%- set wind_level_cn =
+        [
+            "中级风，风力%d级" % (wind_level),
+        ] -%}
+    {%- elif wind_level <= 5 -%}
+        {%- set wind_level_cn =
+        [
+            "强风，风力%d级" % (wind_level),
+        ] -%}
+    {%- elif wind_level >= 6 -%}
+        {%- set wind_level_cn =
+        [
+            "大风，风力%d级" % (wind_level),
+        ] -%}
+    {%- else -%}
+        {%- set wind_level_cn = [] -%}
+    {%- endif -%}
+{{ wind_level_cn | random }}
+{%- endmacro -%}

@@ -1,0 +1,92 @@
+
+{%- set future_day_sky = weather.data.future.week.day_sky -%}
+{%- set day_wind_level = weather.data.future.week.day_wind_level -%}
+{%- set max_temperature = weather.data.future.week.max_temperature -%}
+{%- set min_temperature = weather.data.future.week.min_temperature -%}
+
+{%- set target_time_name = general.target_time.local_name -%}
+{%- set start_weekday = general.target_time.start_weekday -%}
+{%- set target_time_idx = general.target_time.relative_idx -%}
+{%- set duration = general.target_time.duration -%}
+{%- set city_name = general.place.city_name -%}
+{%- set search_keywords = general.keywords -%}
+{%- set sugg_good_bless = [] -%}
+
+{################################}
+
+{%- macro future_report(city_name, target_time_name, start_weekday, target_time_idx, duration,
+                           future_day_sky, max_temperature, min_temperature, day_wind_level) -%}
+    {%- if duration == 1 -%}
+        {%- set idx = target_time_idx[0] -%}
+        {%- set sky_val = future_day_sky[idx] -%}
+        {%- set min_tem = min_temperature[idx] -%}
+        {%- set max_tem = max_temperature[idx] -%}
+        {%- set wind_lv = day_wind_level[idx] -%}
+        {%- set weekday_num = start_weekday -%}
+
+        {%- if search_keywords | length == 0 -%}{##### 如果keywords是空，则表示为问询，明天天气怎么样######}
+            {{- city_name }}
+            {%- if target_time_name != None -%}
+                {{- target_time_name -}}
+            {%- endif -%}
+            {{- p.back(sky.description_short(sky_val), "，") }}
+            {{- p.back(temperature.min_max_range_description(max_tem, min_tem), "，") }}
+            {{- p.back(wind.description_short(wind_lv), "。") }}
+            {{- suggestion.outdoor( sky_val, wind_lv, 0, weekday_num ) -}}
+            {%- do sugg_good_bless.append(suggestion.good_bless(1, sky_val)) -%}
+
+        {%- else -%}{##### 如果keywords不是空，则表示为问询，明天有雨吗等,(无法查询未来的雾霾天气)######}
+            {#####e.g. [ {"std_tag":"temperature", "orig_word":"温度"}, {"std_tag":"smog", "orig_word": "雾霾"} ]#####}
+            {%- set keyword_std  = search_keywords[0].std_tag -%}
+            {%- set keyword_orig = search_keywords[0].orig_word -%}
+            {%- set keyword_ans_sen = keywords.search_by_keywords(keyword_std, keyword_orig, max_tem, min_tem, sky_val, wind_lv, None, weekday_num, true) -%}
+
+            {%- if keyword_ans_sen -%}
+                {{- city_name -}}
+                    {%- if target_time_name -%}
+                        {{- target_time_name -}}
+                    {%- endif -%}
+                {{- keyword_ans_sen -}}
+            {%- endif -%}
+        {%- endif -%}
+
+    {%- elif duration >= 2 -%}
+        {{- city_name -}}
+        {%- for idx in target_time_idx -%}
+            {%- set weekday_num = start_weekday + loop.index - 1 -%} {# `loop.index` begins with 1 #}
+            {%- set sky_val = future_day_sky[idx] -%}
+            {%- set min_tem = min_temperature[idx] -%}
+            {%- set max_tem = max_temperature[idx] -%}
+            {%- set wind_lv = day_wind_level[idx] -%}
+
+            {%- if not sky_val and not min_tem and not max_tem and not wind_lv -%}
+            {%- else -%}    
+                {{- common.weekday(weekday_num) -}}
+                {%- if search_keywords | length == 0 -%}{##### 如果keywords是空，则表示为问询，明天天气怎么样######}
+                    {{- suggestion.brief_report(sky_val, min_tem, max_tem, wind_lv) -}}
+                    {%- if not loop.last -%}
+                        {{- "；" -}}
+                    {%- else -%}
+                        {{- "。" -}}
+                    {%- endif -%}
+                {%- else -%}
+                    {#####e.g. [ {"std_tag":"temperature", "orig_word":"温度"}, {"std_tag":"smog", "orig_word": "雾霾"} ]#####}
+                    {%- set keyword_std  = search_keywords[0].std_tag -%}
+                    {%- set keyword_orig = search_keywords[0].orig_word -%}
+                    {{- keywords.search_by_keywords(keyword_std, keyword_orig, max_tem, min_tem, sky_val, wind_lv, None, weekday_num, true)-}}
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{######### main   template ##########}
+{%- set text_future_report = future_report(
+        city_name, target_time_name, start_weekday, target_time_idx, duration,
+        future_day_sky, max_temperature, min_temperature, day_wind_level) -%}
+
+{%- if sugg_good_bless -%}
+    {{- p.prg("[", text_future_report, "],[", sugg_good_bless[-1], "],[", "" ,"]") -}}
+{%- else -%}
+    {{- text_future_report -}}
+{%- endif -%}

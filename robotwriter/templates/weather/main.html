@@ -1,0 +1,44 @@
+{%- if general.place.city_name == None -%}
+    {%- include "template_no_city_specified.html" -%}
+{%- elif weather == None -%}
+    {%- include "template_city_not_found.html" -%}
+{%- elif general.subfunction == "alarm" -%}
+    {%- include "template_alarm.html" -%}
+{%- else -%}
+
+
+    {%- import 'words_alarm.html' as alarm with context -%}
+    {%- import 'words_general.html' as common with context -%}
+    {%- import 'words_sky.html' as sky with context -%}
+    {%- import 'words_temperature.html' as temperature with context -%}
+    {%- import 'words_air.html' as air with context -%}
+    {%- import 'words_wind.html' as wind with context -%}
+    {%- import 'words_suggestion.html' as suggestion with context -%}
+    {%- import 'add_punctuation.html' as p -%}
+    {%- import 'words_keywords.html' as keywords with context -%}
+
+
+    {%- macro random_pick_template(template_candidates) -%}
+        {%- set template_fn = template_candidates | random -%}
+        {%- include template_fn with context -%}
+    {%- endmacro -%}
+
+
+    {%- set start_date_idx = general.target_time.relative_idx[0] -%}
+    {%- set forecast = general.target_time.forecast -%}
+
+    {%- if start_date_idx < 0 -%}
+        {#------- 昨天以前 -------#}
+        {{ "暂时不提供过去的天气" }}
+    {%- elif start_date_idx >= forecast -%}
+        {{ "小影目前只提供未来14天内的天气" }}
+    {%- elif start_date_idx == 0 -%}
+        {#------- 今天 -------#}
+        {{ random_pick_template(["template_today.html"]) }}
+    {%- else -%}
+        {#------- 明天、后天 -------#}
+        {{ random_pick_template(["template_future.html"]) }}
+    {%- endif -%}
+
+
+{%- endif -%}
