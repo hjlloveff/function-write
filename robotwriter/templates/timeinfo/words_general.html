@@ -1,0 +1,167 @@
+
+{%- macro weekday(weekday_num) -%}
+    {%- if weekday_num > 7 -%}
+        {%- set weekday_num = (weekday_num - 1) % 7 + 1 -%}
+    {%- endif -%}
+
+    {%- if weekday_num == 1 -%}
+        {%- set weekday_ch =
+        [
+            "星期一",
+            "周一",
+        ]-%}
+    {%- elif weekday_num == 2 -%}
+        {%- set weekday_ch =
+        [
+            "星期二",
+            "周二",
+        ]-%}
+    {%- elif weekday_num == 3 -%}
+        {%- set weekday_ch =
+        [
+            "星期三",
+            "周三",
+        ]-%}
+    {%- elif weekday_num == 4 -%}
+        {%- set weekday_ch =
+        [
+            "星期四",
+            "周四",
+        ]-%}
+    {%- elif weekday_num == 5 -%}
+        {%- set weekday_ch =
+        [
+            "星期五",
+            "周五",
+        ]-%}
+    {%- elif weekday_num == 6 -%}
+        {%- set weekday_ch =
+        [
+            "星期六",
+            "周六",
+        ]-%}
+    {%- elif weekday_num == 7 -%}
+        {%- set weekday_ch =
+        [
+            "星期日",
+            "周日",
+            "星期天",
+            "周天",
+        ]-%}
+    {%- else -%}
+        {%- set weekday_ch = [] -%}
+    {%- endif -%}
+{{ weekday_ch | random }}
+{%- endmacro -%}
+
+
+{%- macro blessing_words() -%}
+    {%- if general.time.hour < 11 -%}
+        {%- set blessing_words =
+        [
+            "一日之计在于晨，祝一天好心情",
+        ]-%}
+    {%- elif general.time.hour < 13 -%}
+        {%- set blessing_words =
+        [
+            "午休一定要开开心心哦",
+        ]-%}
+    {%- elif general.time.hour < 16 -%}
+        {%- set blessing_words =
+        [
+            "下午也要全力以赴哦",
+        ]-%}
+    {%- elif general.time.hour < 18 -%}
+        {%- set blessing_words =
+        [
+            "要下班了，一定要注意天气变化",
+        ]-%}
+    {%- elif general.time.hour < 24 -%}
+        {%- set blessing_words =
+        [
+            "辛苦一天了，多注意休息啊",
+        ]-%}
+    {%- elif general.time.hour < 24 -%}
+        {%- set blessing_words = [] -%}
+    {%- endif -%}
+{{ blessing_words | random }}
+{%- endmacro -%}
+
+
+{%- macro duration_description(days) -%}
+    {%- if days == 1 -%}
+        {%- set sentences =
+        [
+            "昨天",
+            "昨日",
+        ]-%}
+    {%- elif days <= 4 -%}
+        {%- set sentences =
+        [
+            "前几天",
+        ]-%}
+    {%- elif days <= 9 -%}
+        {%- set sentences =
+        [
+            "这一周",
+        ]-%}
+    {%- elif days == 10 -%}
+        {%- set sentences =
+        [
+            "这十天",
+        ]-%}
+    {%- elif days <= 12 -%}
+        {%- set sentences =
+        [
+            "这十几天",
+        ]-%}
+    {%- elif days <= 17 -%}
+        {%- set sentences =
+        [
+            "这两週",
+        ]-%}
+    {%- elif days <= 24 -%}
+        {%- set sentences =
+        [
+            "这三週",
+        ]-%}
+    {%- elif days <= 35 -%}
+        {%- set sentences =
+        [
+            "这个月",
+        ]-%}
+    {%- elif days <= 50 -%}
+        {%- set sentences =
+        [
+            "这一个多月",
+        ]-%}
+    {%- elif days <= 65 -%}
+        {%- set sentences =
+        [
+            "这两个月",
+        ]-%}
+    {%- elif days <= 330 -%}
+        {%- set sentences =
+        [
+            "这几个月",
+        ]-%}
+    {%- elif days <= 390 -%}
+        {%- set sentences =
+        [
+            "这一年",
+        ]-%}
+    {%- elif days <= 700 -%}
+        {%- set sentences =
+        [
+            "这一年多",
+        ]-%}
+    {%- elif days <= 40000 -%}
+        {%- set sentences =
+        [
+            "这几年",
+        ]-%}
+    {%- else -%}
+        {%- set sentences = []-%}
+    {%- endif -%}
+{{ sentences | random }}
+{%- endmacro -%}

@@ -1,0 +1,16 @@
+{%- set hour = general.now.hour -%}
+{%- set minute = general.now.minute -%}
+
+{%- set sentences =
+[
+    "让聪明的小影告诉你，现在是北京时间 %02d:%02d。但你有手机，下次就别问我啦，咱们还是多聊聊天吧！" % (hour, minute),
+    "小影知道，当然是北京时间 %02d:%02d。下次记得看手机哦~" % (hour, minute),
+    "告诉你吧，是北京时间 %02d:%02d。你是不是早就知道了？" % (hour, minute),
+    "现在是北京时间 %02d:%02d。你知道时间还问我，你好坏。" % (hour, minute),
+    "是北京时间 %02d:%02d啦！(●’◡’●)有问时间的功夫，还是和我聊聊天" % (hour, minute),
+    "是北京时间 %02d:%02d，快夸我善良！多和我聊聊天好不好？" % (hour, minute),
+    "介个问题小菜一碟啦，是北京时间 %02d:%02d。" % (hour, minute),
+    "善良的我告诉你吧！现在是北京时间 %02d:%02d。手机上有时间，你还问我，不如和我聊聊天。" % (hour, minute),
+]-%}
+
+{{ sentences | random }}

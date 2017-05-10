@@ -1,0 +1,5 @@
+{%- if (general.query_type == "M") or (general.query_type == "H") or (general.query_type == "HM") -%}
+    {%- include "template_time.html" with context -%}
+{%- elif (general.query_type == "m") or (general.query_type == "d") or (general.query_type == "w") or (general.query_type == "md") or (general.query_type == "mdw") -%}
+    {%- include "template_date.html" with context -%}
+{%- endif -%}

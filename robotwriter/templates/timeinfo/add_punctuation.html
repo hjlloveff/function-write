@@ -1,0 +1,20 @@
+
+{# add punctuation in the front #}
+{%- macro front(punctuation, sentence) -%}
+    {%- if sentence == "" -%}
+        {%- set result = "" -%}
+    {%- else -%}
+        {%- set result = punctuation + sentence -%}
+    {%- endif -%}
+{{result}}
+{%- endmacro -%}
+
+{# add punctuation in the back #}
+{%- macro back(sentence, punctuation) -%}
+    {%- if sentence == "" -%}
+        {%- set result = "" -%}
+    {%- else -%}
+        {%- set result = sentence + punctuation -%}
+    {%- endif -%}
+{{result}}
+{%- endmacro -%}

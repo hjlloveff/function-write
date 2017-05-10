@@ -1,0 +1,62 @@
+{%- set time_name = general.time_name -%}
+{%- set month = general.target_date.month -%}
+{%- set day = general.target_date.day -%}
+{%- set weekday = general.target_date.weekday -%}
+{%- set lunar_month = general.lunar.month -%}
+{%- set lunar_day = general.lunar.day -%}
+{%- set festival = general.festival -%}
+
+{%- import 'words_general.html' as common -%}
+{%- set weekday_str = "，" + common.weekday(weekday) -%}
+
+{%- set today = general.now.date -%}
+{%- set target_date = general.target_date.date -%}
+
+{%- if time_name == None -%}
+    {%- set time_name = "" -%}
+{%- endif -%}
+
+{%- if lunar_month == None -%}
+    {%- set lunar_date = "" -%}
+{%- else -%}
+    {%- set lunar_date = "，农历%d月%d号" % (lunar_month, lunar_day) -%}
+{%- endif-%}
+
+{%- if festival == None -%}
+    {%- set festival_str = "。" -%}
+{%- else -%}
+    {%- set festival_str = "，%s。" % (festival) -%}
+{%- endif-%}
+
+
+{%- set sentences =
+[
+    "让聪明的小影告诉你，%s是%d月%d号",
+    "小影知道，%s当然是%d月%d号",
+    "告诉你吧，%s是%d月%d号",
+    "%s是%d月%d号",
+    "%s是%d月%d号",
+    "%s是%d月%d号",
+    "介个问题小菜一碟啦，%s是%d月%d号",
+    "%s是%d月%d号",
+]-%}
+
+{%- if month==4 and day==29 -%}
+    {%- if today == target_date -%}
+        {%- set blessing = "一起祝福他生日快乐吧~" -%}
+    {%- else -%}
+        {%- set blessing = "" -%}
+    {%- endif -%}
+    {%- set special_sentence = "是小影爸爸的生日~" + blessing -%}
+{%- else -%}
+    {%- set special_sentence = "" -%}
+{%- endif -%}
+
+{%- set ending =
+[
+    "(*^__^*)",
+    "",
+]-%}
+
+{%- set last_template = sentences | random -%}
+{{ last_template % (time_name, month, day) }}{{lunar_date}}{{weekday_str}}{{festival_str}}{{ special_sentence }}{{ ending | random }}
