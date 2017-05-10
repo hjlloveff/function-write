@@ -385,12 +385,12 @@ class WeatherService(object):
         output = WeatherLegacyOutput(today, city_q_obj, weather_records)
 
         @time_calc_decorator
-        def templating(obj_template, output):
+        def apply_template(obj_template, output):
             return obj_template.render(output)
 
         # self.logger.debug(json.dumps(output, indent=2, ensure_ascii=False))
         if templating:
-            return templating(self.jinja_template, output)
+            return apply_template(self.jinja_template, output)
         return output
 
 

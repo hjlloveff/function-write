@@ -91,19 +91,66 @@ class TimeInfoService(object):
               lunar_date=None, festival=None):
         assert date and type_
 
-        def templating(obj_template, output):
+        @time_calc_decorator
+        def apply_template(obj_template, output):
             return obj_template.render(output)
 
-        self.logger.info('date: %s, type_: %s, time_name: %s, templating: %s',
-                         date, type_, time_name, templating)
+        self.logger.info('date: %s, type_: %s, time_name: %s, templating: %s'
+                         ', lunar_date: %s, festival: %s',
+                         date, type_, time_name, templating, lunar_date, festival)
         output = TimeInfoOutput(date, type_, time_name, lunar_date, festival)
         if templating:
-            return templating(self.jinja_template, output)
+            return apply_template(self.jinja_template, output)
         return output
 
 
 if __name__ == '__main__':
     import os
+
+    import logging.config
+    import requests
+    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+                                                      InsecurePlatformWarning)
+    # from datetime import timedelta
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
+
+    log_dict = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'root': {
+            'level': 'DEBUG',
+            'handlers': ['console']
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'detail',
+                'level': 'DEBUG'
+            },
+            'file': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'formatter': 'detail',
+                'level': 'INFO',
+                'filename': 'info.log',
+                'maxBytes': 10 * 1024 * 1024,
+                'backupCount': 10
+            }
+        },
+        'formatters': {
+            'detail': {
+                'format': u'[%(asctime)s][%(threadName)10.10s]'
+                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
+                ' %(message)s'
+            },
+            'simple': {
+                'format': u'[%(asctime)s][%(threadName)10.10s]'
+                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
+            }
+        }
+    }
+    logging.config.dictConfig(log_dict)
     config = {
         'template_path': os.path.join(os.path.dirname(__file__),
                                       'templates/timeinfo')
