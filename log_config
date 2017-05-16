@@ -39,7 +39,8 @@ formatter=access
 args=('/tmp/gunicorn.access.log',)
 
 [formatter_generic]
-format=%(asctime)s [%(process)d] [%(levelname)s] %(message)s
+format=[%(asctime)s][%(threadName)10.10s][%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]: %(message)s
+#format=%(asctime)s [%(process)d] [%(levelname)s] %(message)s
 datefmt=%Y-%m-%d %H:%M:%S
 class=logging.Formatter
 

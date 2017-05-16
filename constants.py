@@ -3,31 +3,12 @@
 ENV_CONTENT_SERVER = 'CONTENT_SERVER'
 ENV_CONTENT_KEY = 'CONTENT_KEY'
 
-CFG_CONTENT_SERVER = 'content_url'
-CFG_CONTENT_KEY = 'content_api_key'
-CFG_CONTENT_TIME_INTERVAL = 'time_interval'
+CFG_CONTENT_SERVER = 'server_url'
+CFG_CONTENT_KEY = 'api_key'
+CFG_WEATHER_TEMPLATE = 'weather_template'
+CFG_SOCCER_TEMPLATE = 'soccer_template'
+CFG_TIMEINFO_TEMPLATE = 'timeinfo_template'
 
 
-# name of environment variables
-ENV_DB_SERVER = 'MYSQL_DB_SERVER'
-ENV_DB_USER = 'MYSQL_DB_USER'
-ENV_DB_PASSWORD = 'MYSQL_DB_PASSWORD'
-ENV_REDIS_SERVER = 'REDIS_SERVER'
-ENV_REDIS_DB = 'REDIS_DB'
-CFG_SYNONYM_PATH = 'synonym_path'
-CFG_TOPIC_PATH = 'topic_path'
-CFG_DB_SERVER = 'db_server'
-CFG_DB_USER = 'db_user'
-CFG_DB_PASSWORD = 'db_password'
-CFG_REDIS_SERVER = 'redis_server'
-CFG_REDIS_DB = 'redis_db'
-SYNONYM_PATH_DEFAULT = '/usr/src/app/dictionary/synonym_20161202.csv'
-TOPIC_PATH_DEFAULT = '/usr/src/app/dictionary/topic_20161130.csv'
-DB_SERVER_DEFAULT = '127.0.0.1:3306'
-DB_USER_DEFAULT = 'root'
-DB_PASSWORD_DEFAULT = 'root'
-REDIS_DB_DEFAULT = 0
-REDIS_SERVER_DEFAULT = '127.0.0.1:6379'
-REDIS_PORT_DEFAULT = 6379
-CACHE_KEY_NEWS_LIST = 'news:list'
-CACHE_EXPIRE = 60
+CONTENT_SERVER_DEFAULT = 'https://content.emotibot.com'
+CONTENT_KEY_DEFAULT = '2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'

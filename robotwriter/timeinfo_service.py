@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import jinja2
 
@@ -75,7 +76,7 @@ class TimeInfoService(object):
         self.config = config
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        template_path = config.get('template_path')
+        template_path = config.get('timeinfo_template')
         env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(template_path),
             trim_blocks=True,
@@ -104,65 +105,70 @@ class TimeInfoService(object):
         return output
 
 
-if __name__ == '__main__':
-    import os
-
-    import logging.config
-    import requests
-    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
-                                                      InsecurePlatformWarning)
-    # from datetime import timedelta
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
-    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
-
-    log_dict = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'root': {
-            'level': 'DEBUG',
-            'handlers': ['console']
-        },
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'detail',
-                'level': 'DEBUG'
-            },
-            'file': {
-                'class': 'logging.handlers.RotatingFileHandler',
-                'formatter': 'detail',
-                'level': 'INFO',
-                'filename': 'info.log',
-                'maxBytes': 10 * 1024 * 1024,
-                'backupCount': 10
-            }
-        },
-        'formatters': {
-            'detail': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
-                ' %(message)s'
-            },
-            'simple': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
-            }
-        }
-    }
-    logging.config.dictConfig(log_dict)
-    config = {
-        'template_path': os.path.join(os.path.dirname(__file__),
-                                      'templates/timeinfo')
-    }
-    service = TimeInfoService(config)
-
-    def basic_test(date, type_, time_name=None, lunar=None, festival=None):
-        print service.query(date, type_, time_name=time_name, lunar_date=lunar,
-                            festival=festival)
-
-    today = datetime.today()
-    today_str = today.strftime('%Y%m%d')
-    basic_test(today_str, 'md')
-    basic_test(today_str, 'mdw')
-    basic_test(today_str, 'HM')
+#if __name__ == '__main__':
+#    import os
+#
+#    import logging.config
+#    import requests
+#    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+#                                                      InsecurePlatformWarning)
+#    # from datetime import timedelta
+#    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+#    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+#    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
+#
+#    log_dict = {
+#        'version': 1,
+#        'disable_existing_loggers': False,
+#        'root': {
+#            'level': 'DEBUG',
+#            'handlers': ['console']
+#        },
+#        'handlers': {
+#            'console': {
+#                'class': 'logging.StreamHandler',
+#                'formatter': 'detail',
+#                'level': 'DEBUG'
+#            },
+#            'file': {
+#                'class': 'logging.handlers.RotatingFileHandler',
+#                'formatter': 'detail',
+#                'level': 'INFO',
+#                'filename': 'info.log',
+#                'maxBytes': 10 * 1024 * 1024,
+#                'backupCount': 10
+#            }
+#        },
+#        'formatters': {
+#            'detail': {
+#                'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
+#                ' %(message)s'
+#            },
+#            'simple': {
+#                'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
+#            }
+#        }
+#    }
+#    logging.config.dictConfig(log_dict)
+#    config = {
+#        'timeinfo_template': os.path.join(os.path.dirname(__file__),
+#                                          'templates/timeinfo')
+#    }
+#    service = TimeInfoService(config)
+#
+#    def basic_test(date, type_, time_name=None, lunar=None, festival=None):
+#        print service.query(date, type_, time_name=time_name, lunar_date=lunar,
+#                            festival=festival)
+#
+#    today = datetime.today()
+#    today_str = today.strftime('%Y%m%d')
+#    basic_test(today_str, 'md')
+#    basic_test(today_str, 'mdw')
+#    basic_test(today_str, 'HM')
+#
+#    tomorrow = today + timedelta(days=1)
+#    tomorrow_str = tomorrow.strftime('%Y%m%d')
+#
+#    basic_test(tomorrow_str, 'w', time_name=u'明天')

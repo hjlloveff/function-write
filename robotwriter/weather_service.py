@@ -21,7 +21,7 @@ class CityQuery(object):
         self.time_name = time_name
         self.keywords = keywords if keywords else []
         self.gender = gender
-        self.duration = duration
+        self.duration = duration if duration is not None else 1
 
 
 class WeatherNodeDays(dict):
@@ -169,9 +169,13 @@ class WeatherLegacyOutput(dict):
 
         # 3 parts: general/user/weather
         self['general'] = self._generate_general()
+        self.logger.debug('>>> general: %s', self['general'])
         self['user'] = self._generate_user()
+        self.logger.debug('>>> user: %s', self['user'])
         self['weather'] = self._generate_weather()
+        self.logger.debug('>>> weather: %s', self['weather'])
 
+    @time_calc_decorator
     def _generate_general(self):
         '''Return {
         'place': {},
@@ -211,7 +215,7 @@ class WeatherLegacyOutput(dict):
                           self.city_query_obj.date_in_datetime)
         self.logger.debug('today: %s', self.today)
         obj = self.city_query_obj
-        return {
+        ret = {
             u'place': {
                 u'city_name': obj.city_name,
                 u'area': None,
@@ -234,6 +238,8 @@ class WeatherLegacyOutput(dict):
             u'subfunction': None,
             u'keywords': _generate_keyword(obj.keywords)
         }
+        self.logger.debug('ret: %s', ret)
+        return ret
 
     def _generate_user(self):
         obj = self.city_query_obj
@@ -311,7 +317,7 @@ class WeatherService(object):
         self._city_nor_pattern = re.compile(ur"(省|市|市辖区|区|县|镇|乡)$",
                                             re.UNICODE)
         self._city_id_mapping = defaultdict(list)
-        template_path = config.get('template_path')
+        template_path = config.get('weather_template')
         env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(template_path),
             trim_blocks=True,
@@ -369,10 +375,10 @@ class WeatherService(object):
 
         '''
         assert city_name
-        self.logger.info('city_name: %s, date: %s, time_name: %s, '
-                         'keywords: %s, duration: %s, gender: %s',
-                         city_name, date, time_name, keywords,
-                         duration, gender)
+        self.logger.debug('city_name: %s, date: %s, time_name: %s, '
+                          'keywords: %s, duration: %s, gender: %s',
+                          city_name, date, time_name, keywords,
+                          duration, gender)
         # Get data by date
         today = datetime.today()
         if date is None:
@@ -380,9 +386,15 @@ class WeatherService(object):
         city_id, normalize_city_name = self._get_city_info(city_name)
         city_q_obj = CityQuery(city_id, normalize_city_name, date, time_name,
                                keywords, gender, duration)
+        self.logger.debug('city_q_obj; %s', city_q_obj)
+
         # TODO(mike): handle city_id is None case
         weather_records = self.dao.get_records(city_q_obj.city_id)
-        output = WeatherLegacyOutput(today, city_q_obj, weather_records)
+        try:
+            output = WeatherLegacyOutput(today, city_q_obj, weather_records)
+        except:
+            self.logger.exception('')
+        self.logger.debug('output: %s', output)
 
         @time_calc_decorator
         def apply_template(obj_template, output):
@@ -394,111 +406,111 @@ class WeatherService(object):
         return output
 
 
-if __name__ == '__main__':
-    import logging.config
-    import requests
-    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
-                                                      InsecurePlatformWarning)
-    # from datetime import timedelta
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
-    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
-
-    log_dict = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'root': {
-            'level': 'DEBUG',
-            'handlers': ['console']
-        },
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'detail',
-                'level': 'DEBUG'
-            },
-            'file': {
-                'class': 'logging.handlers.RotatingFileHandler',
-                'formatter': 'detail',
-                'level': 'INFO',
-                'filename': 'info.log',
-                'maxBytes': 10 * 1024 * 1024,
-                'backupCount': 10
-            }
-        },
-        'formatters': {
-            'detail': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
-                ' %(message)s'
-            },
-            'simple': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
-            }
-        }
-    }
-    logging.config.dictConfig(log_dict)
-
-    server_url = 'https://content-sh.emotibot.com'
-    api_key = u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
-    update_interval = 60
-    config = {
-        'server_url': 'https://content-sh.emotibot.com',
-        'api_key': u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM',
-        'template_path': os.path.join(os.path.dirname(__file__),
-                                      'templates/weather')
-    }
-    service = WeatherService(config)
-    today = datetime.today()
-
-    # ===== Basic Testing =====
-    def basic_test(city_name, date, time_name=None, duration=1, keywords=None):
-        print service.query(city_name, date=date, time_name=time_name,
-                            duration=duration, keywords=keywords)
-    # 1. 上海今天天氣
-    basic_test(u'上海', today.strftime('%Y%m%d'), time_name=u'今天')
-    # 2. 北京周末天氣
-    date = today.strftime('%Y%m%d')
-    weekday = today.weekday()
-    if weekday < 5:
-        date = (today + timedelta(days=(5-weekday))).strftime('%Y%m%d')
-    basic_test(u'上海', date, duration=2, time_name=u'周末')
-    # 3. 廣州明天天氣
-    basic_test(u'广州', (today + timedelta(days=1)).strftime('%Y%m%d'),
-               time_name=u'明天')
-    # 4. 重慶下周五天氣
-    basic_test(u'重庆',
-               (today + timedelta(days=(4-weekday+7))).strftime('%Y%m%d'),
-               time_name=u'下周五')
-    # 5. 台北明天會下雨嗎
-    basic_test(u'台北', (today + timedelta(days=1)).strftime('%Y%m%d'),
-               time_name=u'明天', keywords=[u'雨'])
-    # 6. 武汉明天空气好吗
-    basic_test(u'武汉', (today + timedelta(days=1)).strftime('%Y%m%d'),
-               time_name=u'明天', keywords=[u'霾'])
-    # 7. 海南天氣
-    print service.query(u'海南', today.strftime('%Y%m%d'))
-    # 8. 台中昨天天气
-    basic_test(u'台中', (today + timedelta(days=-1)).strftime('%Y%m%d'),
-               time_name=u'昨天')
-    # ===== Random test =====
-    # city_names = [u'上海', u'北京', u'台北', u'海南', u'广州']
-    # # for city_name in city_names:
-    # #     print service.query(city_name)
-    # keywords = [u'温度', u'气温', u'雨', u'伞', u'pm2.5', u'雾霾', u'霾',
-    #             u'雪', u'风']
-    # time_names = [u'明天', u'后天', u'5月15号', u'今天', u'下周一']
-    # dates = [u'20170101', u'20171231', today.strftime('%Y%m%d'),
-    #          (today + timedelta(days=1)).strftime('%Y%m%d'),
-    #          (today + timedelta(days=7)).strftime('%Y%m%d')]
-    # keywords = [u'雨']
-    # durations = [1, 2, 3, 4, 5]
-
-    # for n in range(5):
-    #     city_name = city_names.pop(randint(0, len(city_names)-1))
-    #     time_name = time_names.pop(randint(0, len(time_names)-1))
-    #     date = dates.pop(randint(0, len(dates)-1))
-    #     duration = durations.pop(randint(0, len(durations)-1))
-    #     print service.query(city_name, time_name=time_name, date=date,
-    #                         duration=duration)
+#if __name__ == '__main__':
+#    import logging.config
+#    import requests
+#    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+#                                                      InsecurePlatformWarning)
+#    # from datetime import timedelta
+#    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+#    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+#    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
+#
+#    log_dict = {
+#        'version': 1,
+#        'disable_existing_loggers': False,
+#        'root': {
+#            'level': 'DEBUG',
+#            'handlers': ['console']
+#        },
+#        'handlers': {
+#            'console': {
+#                'class': 'logging.StreamHandler',
+#                'formatter': 'detail',
+#                'level': 'DEBUG'
+#            },
+#            'file': {
+#                'class': 'logging.handlers.RotatingFileHandler',
+#                'formatter': 'detail',
+#                'level': 'INFO',
+#                'filename': 'info.log',
+#                'maxBytes': 10 * 1024 * 1024,
+#                'backupCount': 10
+#            }
+#        },
+#        'formatters': {
+#            'detail': {
+#                'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
+#                ' %(message)s'
+#            },
+#            'simple': {
+#                'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
+#            }
+#        }
+#    }
+#    logging.config.dictConfig(log_dict)
+#
+#    server_url = 'https://content-sh.emotibot.com'
+#    api_key = u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
+#    update_interval = 60
+#    config = {
+#        'server_url': 'https://content-sh.emotibot.com',
+#        'api_key': u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM',
+#        'weather_template': os.path.join(os.path.dirname(__file__),
+#                                         'templates/weather')
+#    }
+#    service = WeatherService(config)
+#    today = datetime.today()
+#
+#    # ===== Basic Testing =====
+#    def basic_test(city_name, date, time_name=None, duration=1, keywords=None):
+#        print service.query(city_name, date=date, time_name=time_name,
+#                            duration=duration, keywords=keywords)
+#    # 1. 上海今天天氣
+#    basic_test(u'上海', today.strftime('%Y%m%d'), time_name=u'今天')
+#    # 2. 北京周末天氣
+#    date = today.strftime('%Y%m%d')
+#    weekday = today.weekday()
+#    if weekday < 5:
+#        date = (today + timedelta(days=(5-weekday))).strftime('%Y%m%d')
+#    basic_test(u'上海', date, duration=2, time_name=u'周末')
+#    # 3. 廣州明天天氣
+#    basic_test(u'广州', (today + timedelta(days=1)).strftime('%Y%m%d'),
+#               time_name=u'明天')
+#    # 4. 重慶下周五天氣
+#    basic_test(u'重庆',
+#               (today + timedelta(days=(4-weekday+7))).strftime('%Y%m%d'),
+#               time_name=u'下周五')
+#    # 5. 台北明天會下雨嗎
+#    basic_test(u'台北', (today + timedelta(days=1)).strftime('%Y%m%d'),
+#               time_name=u'明天', keywords=[u'雨'])
+#    # 6. 武汉明天空气好吗
+#    basic_test(u'武汉', (today + timedelta(days=1)).strftime('%Y%m%d'),
+#               time_name=u'明天', keywords=[u'霾'])
+#    # 7. 海南天氣
+#    print service.query(u'海南', today.strftime('%Y%m%d'))
+#    # 8. 台中昨天天气
+#    basic_test(u'台中', (today + timedelta(days=-1)).strftime('%Y%m%d'),
+#               time_name=u'昨天')
+#    # ===== Random test =====
+#    # city_names = [u'上海', u'北京', u'台北', u'海南', u'广州']
+#    # # for city_name in city_names:
+#    # #     print service.query(city_name)
+#    # keywords = [u'温度', u'气温', u'雨', u'伞', u'pm2.5', u'雾霾', u'霾',
+#    #             u'雪', u'风']
+#    # time_names = [u'明天', u'后天', u'5月15号', u'今天', u'下周一']
+#    # dates = [u'20170101', u'20171231', today.strftime('%Y%m%d'),
+#    #          (today + timedelta(days=1)).strftime('%Y%m%d'),
+#    #          (today + timedelta(days=7)).strftime('%Y%m%d')]
+#    # keywords = [u'雨']
+#    # durations = [1, 2, 3, 4, 5]
+#
+#    # for n in range(5):
+#    #     city_name = city_names.pop(randint(0, len(city_names)-1))
+#    #     time_name = time_names.pop(randint(0, len(time_names)-1))
+#    #     date = dates.pop(randint(0, len(dates)-1))
+#    #     duration = durations.pop(randint(0, len(durations)-1))
+#    #     print service.query(city_name, time_name=time_name, date=date,
+#    #                         duration=duration)

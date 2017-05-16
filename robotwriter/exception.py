@@ -19,5 +19,9 @@ class ServiceError(Error):
     pass
 
 
+class ClientError(Error):
+    pass
+
+
 class NotFoundError(Error):
     pass

@@ -12,5 +12,5 @@ def time_calc_decorator(func):
         try:
             return func(obj, *args, **kwargs)
         finally:
-            _logger.info('%s: cost: %s', func.__name__, time.time() - t_p)
+            _logger.info('%s(%s, %s): cost: %s', func.__name__, args, kwargs, time.time() - t_p)
     return wrapper

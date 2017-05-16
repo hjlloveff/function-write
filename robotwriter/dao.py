@@ -12,7 +12,8 @@ class WeatherDao(Thread):
     1) update weather from content.emotibot.com every {update_interval}
     2) cached weather data from content.emotibot.com and api for get data.
     '''
-    def __init__(self, config):
+    def __init__(self, config, city_list=None):
+        # city_list only for unit-test to passed.
         super(WeatherDao, self).__init__()
         # default options
         self.options = {
@@ -38,7 +39,7 @@ class WeatherDao(Thread):
         self.weather_cache = dict()
         self.logger = logging.getLogger(self.__class__.__name__)
         self._event = Event()
-        self._city_list = list()
+        self._city_list = city_list if city_list else list()
         if self.start_immediately:
             self.start()
 
@@ -80,7 +81,7 @@ class WeatherDao(Thread):
             self.logger.exception('')
             raise
 
-    @time_calc_decorator
+    # @time_calc_decorator
     def _get_city_weather(self, city_id):
         headers = {
             'Authorization': self.api_key
@@ -146,7 +147,7 @@ class WeatherDao(Thread):
 
             # check return data_cache
             wc = weather_cache_dict.get(u'CN101010100')
-            if not weather_cache_dict or len(wc) < 14:
+            if not weather_cache_dict or not wc or len(wc) < 14:
                 self.logger.info('get CN101010100, records(%s) < 14', len(wc))
 
             # update weather data
@@ -175,70 +176,70 @@ class WeatherDao(Thread):
         return d
 
 
-if __name__ == '__main__':
-    import logging.config
-    import requests
-    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
-                                                      InsecurePlatformWarning)
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
-    logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
-
-    log_dict = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'root': {
-            'level': 'DEBUG',
-            'handlers': ['console']
-        },
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'detail',
-                'level': 'DEBUG'
-            },
-            'file': {
-                'class': 'logging.handlers.RotatingFileHandler',
-                'formatter': 'detail',
-                'level': 'INFO',
-                'filename': 'info.log',
-                'maxBytes': 10 * 1024 * 1024,
-                'backupCount': 10
-            }
-        },
-        'formatters': {
-            'detail': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
-                ' %(message)s'
-            },
-            'simple': {
-                'format': u'[%(asctime)s][%(threadName)10.10s]'
-                '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
-            }
-        }
-    }
-    logging.config.dictConfig(log_dict)
-
-    server_url = 'https://content-sh.emotibot.com'
-    api_key = u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
-    update_interval = 60
-    config = {
-        'server_url': 'https://content-sh.emotibot.com',
-        'api_key': u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
-    }
-    dao = WeatherDao(config)
-    evt = Event()
-
-    print 'city list: %s' % len(dao.city_list)
-    res = dao.get_records(u'CN101010100', None, None)
-    for n in res:
-        print '%s' % (n)
-    assert len(res) >= 14
-
-    res = dao.get_records(u'CN101010999', None, None)
-    assert isinstance(res, dict) and len(res.keys()) == 0
-
-    while evt.wait(1.0) is False:  # timeout will return false
-        print '>> %s: %s' % (len(dao.weather_cache), dao.is_alive())
-    # dao.get_nodes("CN1010100")
+# if __name__ == '__main__':
+#     import logging.config
+#     import requests
+#     from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+#                                                       InsecurePlatformWarning)
+#     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+#     requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+#     logging.getLogger('requests.packages.urllib3').setLevel(logging.WARN)
+#
+#     log_dict = {
+#         'version': 1,
+#         'disable_existing_loggers': False,
+#         'root': {
+#             'level': 'DEBUG',
+#             'handlers': ['console']
+#         },
+#         'handlers': {
+#             'console': {
+#                 'class': 'logging.StreamHandler',
+#                 'formatter': 'detail',
+#                 'level': 'DEBUG'
+#             },
+#             'file': {
+#                 'class': 'logging.handlers.RotatingFileHandler',
+#                 'formatter': 'detail',
+#                 'level': 'INFO',
+#                 'filename': 'info.log',
+#                 'maxBytes': 10 * 1024 * 1024,
+#                 'backupCount': 10
+#             }
+#         },
+#         'formatters': {
+#             'detail': {
+#                 'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                 '[%(levelname).1s][%(filename)s:%(funcName)s:%(lineno)s]:'
+#                 ' %(message)s'
+#             },
+#             'simple': {
+#                 'format': u'[%(asctime)s][%(threadName)10.10s]'
+#                 '[%(levelname).1s][%(filename)s:%(lineno)s]: %(message)s'
+#             }
+#         }
+#     }
+#     logging.config.dictConfig(log_dict)
+#
+#     server_url = 'https://content-sh.emotibot.com'
+#     api_key = u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
+#     update_interval = 60
+#     config = {
+#         'server_url': 'https://content-sh.emotibot.com',
+#         'api_key': u'2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM'
+#     }
+#     dao = WeatherDao(config)
+#     evt = Event()
+#
+#     print 'city list: %s' % len(dao.city_list)
+#     res = dao.get_records(u'CN101010100', None, None)
+#     for n in res:
+#         print '%s' % (n)
+#     assert len(res) >= 14
+#
+#     res = dao.get_records(u'CN101010999', None, None)
+#     assert isinstance(res, dict) and len(res.keys()) == 0
+#
+#     while evt.wait(1.0) is False:  # timeout will return false
+#         print '>> %s: %s' % (len(dao.weather_cache), dao.is_alive())
+#     # dao.get_nodes("CN1010100")
