@@ -87,12 +87,12 @@ class TimeInfoService(object):
 
         self.logger.info('config: %s', config)
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def query(self, date, type_, time_name=None, templating=True,
               lunar_date=None, festival=None):
         assert date and type_
 
-        @time_calc_decorator
+        @time_calc_decorator()
         def apply_template(obj_template, output):
             return obj_template.render(output)
 

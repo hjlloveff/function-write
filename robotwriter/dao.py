@@ -65,7 +65,7 @@ class WeatherDao(Thread):
             self._update_city_list()
         return self._city_list
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def _update_city_list(self):
         '''If error occurred while update_city_list, should raise error
         '''
@@ -93,7 +93,7 @@ class WeatherDao(Thread):
         resp.raise_for_status()
         return resp.json()
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def _get_all_city_weather(self):
         d = dict()
         len_city_list = len(self.city_list)
@@ -154,7 +154,7 @@ class WeatherDao(Thread):
             if weather_cache_dict:
                 self.weather_cache = weather_cache_dict
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def get_records(self, city_id, min_date=None, max_date=None):
         '''Get data from cache, if miss, get from content_server
 

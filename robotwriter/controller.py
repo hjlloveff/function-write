@@ -5,11 +5,21 @@ import json
 from flask import Flask
 from flask import Response
 from flask_restful import Resource, reqparse
+from datadog import statsd
 
+import constants
+from cache import DictCache
 from .exception import ServiceError, ClientError
 from .service import WeatherService, SoccerService, TimeInfoService
 from .common import time_calc_decorator
-from cache import DictCache
+
+
+# configure datadog statsd
+statsd.host = constants.DATADOG_HOST
+statsd.port = constants.DATADOG_PORT
+statsd.namespace = constants.DATADOG_NAMESPACE
+statsd.constant_tags = constants.DATADOG_TAGS
+statsd.use_ms = constants.DATADOG_USE_MS
 
 
 def _weather_parser():
@@ -86,7 +96,7 @@ class SoccerV2Handler(Resource):
         self.logger = logging.getLogger(self.__class__.__name__)
         super(SoccerV2Handler, self).__init__()
 
-    @time_calc_decorator
+    @time_calc_decorator(statsd)
     def get(self):
         args = SoccerV2Handler.parser.parse_args()
         self.logger.info('args(%s): %s', type(args), args)
@@ -131,7 +141,7 @@ class WeatherV2Handler(Resource):
         self.logger = logging.getLogger(self.__class__.__name__)
         super(WeatherV2Handler, self).__init__()
 
-    @time_calc_decorator
+    @time_calc_decorator(statsd)
     def get(self):
         args = WeatherV2Handler.parser.parse_args()
         self.logger.info('%s', args)
@@ -177,7 +187,7 @@ class TimeInfoV2Handler(Resource):
         self.logger = logging.getLogger(self.__class__.__name__)
         super(TimeInfoV2Handler, self).__init__()
 
-    @time_calc_decorator
+    @time_calc_decorator(statsd)
     def get(self):
         args = TimeInfoV2Handler.parser.parse_args()
         self.logger.info('args(%s)', args)

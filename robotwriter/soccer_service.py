@@ -23,7 +23,7 @@ class SoccerService(object):
     def api_key(self):
         return self.config['api_key']
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def query(self, params):
         headers = {
             'Authorization': self.api_key

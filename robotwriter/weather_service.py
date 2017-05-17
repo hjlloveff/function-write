@@ -175,7 +175,7 @@ class WeatherLegacyOutput(dict):
         self['weather'] = self._generate_weather()
         self.logger.debug('>>> weather: %s', self['weather'])
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def _generate_general(self):
         '''Return {
         'place': {},
@@ -352,7 +352,7 @@ class WeatherService(object):
             return city_id, normalize_pair
         return None, city_name
 
-    @time_calc_decorator
+    @time_calc_decorator()
     def query(self, city_name, date=None, time_name=None, keywords=None,
               duration=1, gender=None, templating=True):
         '''Request weather infor of city_name
@@ -396,7 +396,7 @@ class WeatherService(object):
             self.logger.exception('')
         self.logger.debug('output: %s', output)
 
-        @time_calc_decorator
+        @time_calc_decorator()
         def apply_template(obj_template, output):
             return obj_template.render(output)
 
