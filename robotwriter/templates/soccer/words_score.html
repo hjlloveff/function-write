@@ -1,0 +1,134 @@
+{#-----皇家马德里主场0-8不敌来访的巴塞罗那。（比分）----#}
+{%- macro score_intro(home_name, home_score, away_name, away_score, home_nicknames, away_nicknames) -%}
+    {%- set score_intro_begin = [""] -%}
+    {%- set score_intro_end = [""] -%}
+    {%- set result = [""] -%}
+    {%- set big_score = [""] -%}
+    {%- set difference = home_score - away_score -%}
+    {%- set sum = home_score + away_score -%}
+    {%- if difference == 0 -%}{#--------平局------#}
+        {%- if home_score > 3 -%}
+            {%- set result =
+            [
+                "大比分战平",
+            ] -%}
+        {%- else -%}
+            {%- set result =
+            [
+                "战平",
+                "打平"
+            ] -%}
+        {%- endif -%}
+    {%- elif difference >= 5  -%}{#--------胜五球以上------#}
+        {%- set result =
+        [
+            "血洗",
+            "屠杀",
+            "横扫",
+            "屠戮",
+            "残杀",
+            "斩落",
+            "弑杀",
+            "狂扫",
+            "完爆"
+        ] -%}
+    {%- elif difference >= 3  -%}
+        {%- set result =
+        [
+            "大胜",
+            "大胜",
+            "击溃",
+            "重创",
+            "狂胜",
+            "征服",
+            "大比分战胜",
+            "轻取",
+            "痛击",
+        ] -%}
+    {%- elif difference >= 2  -%}
+        {%- set result =
+        [
+            "战胜",
+            "击败",
+            "击退",
+            "完胜",
+            "拿下",
+            "完胜",
+        ] -%}
+    {%- elif difference >= 1  -%}
+        {%- set result =
+        [
+            "小胜",
+            "绝杀",
+            "力克",
+            "艰难战胜",
+            "险胜",
+        ] -%}
+    {%- elif difference <= -5  -%}{#--------负五球以上------#}
+        {%- set result =
+        [
+            "惨败于",
+            "惨负于",
+        ] -%}
+    {%- elif difference <= -3  -%}
+        {%- set result =
+        [
+            "大败于",
+            "大比分败给",
+            "完败于",
+        ] -%}
+    {%- elif difference <= -2  -%}
+        {%- set result =
+        [
+            "不敌",
+            "败于",
+        ] -%}
+    {%- elif difference <= -1  -%}
+        {%- set result =
+        [
+            "负于",
+            "输给",
+            "惜败于",
+        ] -%}
+    {%- endif -%}
+    {%- if home_score != None and away_score != None and home_name != None and away_name != None -%}
+        {%- set score_intro_begin =
+        [
+            "%s%s %d - %d " %(home_nicknames | random, home_name, home_score, away_score),
+            "%s%s %d - %d " %(home_nicknames | random, home_name, home_score, away_score),
+        ] -%}
+        {%- set score_intro_end =
+        [
+            "%s%s。" % (away_nicknames|random, away_name),
+            "%s%s。" % (away_nicknames|random, away_name),
+            "%s%s。" % (away_nicknames|random, away_name),
+            "%s%s。" % (away_nicknames|random, away_name)
+        ] -%}
+    {%- endif -%}
+{{score_intro_begin | random}}{{result | random}}{{score_intro_end | random}}
+{%- endmacro -%}
+
+{%- macro PK_score_intro(PK_event) -%}
+    {%- if PK_event -%}
+        {%- set home_name = PK_event.home.team_name -%}
+        {%- set away_name = PK_event.away.team_name -%}
+        {%- set home_success = PK_event.home.success -%}
+        {%- set away_success = PK_event.away.success -%}
+        {% if home_success > away_success %}
+            {%- set team1_name = home_name -%}
+            {%- set team2_name = away_name -%}
+            {%- set team1_success = home_success -%}
+            {%- set team2_success = away_success -%}
+        {% elif home_success < away_success %}
+            {%- set team1_name = away_name -%}
+            {%- set team2_name = home_name -%}
+            {%- set team1_success = away_success -%}
+            {%- set team2_success = home_success -%}
+        {% endif %}
+        {%- set PK_score_desc =
+        [
+            "%s %s-%s 战胜%s" % (team1_name, team1_success, team2_success, team2_name)
+        ] -%}
+        {{"点球大战中，"}}{{PK_score_desc | random}}{{"。"}}
+    {%- endif -%}
+{%- endmacro -%}

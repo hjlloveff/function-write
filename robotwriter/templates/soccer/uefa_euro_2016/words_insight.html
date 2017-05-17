@@ -1,0 +1,383 @@
+{%- macro wl_streak_description(prefix, team_insight, score_diff) -%}
+    {%- set win_dur = team_insight.wl_streak.all.win.duration -%}
+    {%- set win_or_draw_dur = team_insight.wl_streak.all.win_or_draw.duration -%}
+    {%- set lose_or_draw_dur = team_insight.wl_streak.all.lose_or_draw.duration -%}
+    {%- set lose_dur = team_insight.wl_streak.all.lose.duration -%}
+    {%- set home_win_or_draw_dur = team_insight.wl_streak.home.win_or_draw.duration -%}
+    {%- set home_lose_or_draw_dur = team_insight.wl_streak.home.lose_or_draw.duration -%}
+    {%- set away_win_or_draw_dur = team_insight.wl_streak.away.win_or_draw.duration -%}
+    
+    {%- set result = [] -%}
+    {##---------贏球----------#}
+    {%- if score_diff >= 0 -%}
+        {%- if win_dur >= 3 -%}
+            {%- set result =
+            [
+                "夺取%d连胜" % (win_dur)
+            ] -%}
+        {%- elif win_or_draw_dur >= 5 -%}
+            {%- set result =
+            [
+                "迎来%d场不败" % (win_or_draw_dur)
+            ] -%}
+        {%- endif -%}        
+    {%- endif -%}
+
+    {#---------输球----------#}
+    {%- if score_diff <= 0 -%}
+        {%- if lose_dur >= 2 -%}
+            {%- set result =
+            [
+                "惨遭%d连败" % (lose_dur)
+            ] -%}
+        {%- elif lose_or_draw_dur >= 3 -%}
+            {%- set result =
+            [
+                "近%d场无法获胜" % (lose_or_draw_dur)
+            ] -%}
+        {%- endif -%}
+    {%- endif -%}
+    {{ result | random }}
+{%- endmacro -%}
+
+{%- macro shutout_description(team_insight, description_count) -%}
+    {%- if team_insight.shutout_streak != None -%}
+        {%- set shutout_dur = team_insight.shutout_streak.duration -%}
+        {%- set words = [] -%}
+        {# 與前面的聯播 #}
+        {%- if description_count > 0 -%}
+            {%- set words =
+            [
+                "且不失球已达到%s场" % (shutout_dur)
+            ] -%}
+        {# 單獨播 #}
+        {%- else -%}
+            {%- set words =
+            [
+                "连续不失球已经达到%s场" % (shutout_dur)
+            ] -%}
+        {%- endif -%}
+        {%- if words|length >0 -%}
+            {{ words|random }}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro point_description(team_insight, description_count) -%}
+    {%- if team_insight.point_leaderboard != None -%}
+        {%- set rank = team_insight.point_leaderboard.rank -%}
+        {%- set rank_diff = team_insight.point_leaderboard.rank_diff -%}
+        {%- set points = team_insight.point_leaderboard.points -%}
+        {%- set words = [] -%}
+        {# 準備position name #}
+        {%- if rank == 1 -%}
+            {%- set position_name =
+            [
+                "首位",
+                "第1位",
+                "第1名",
+            ] -%}
+        {%- elif rank == 2 -%}
+            {%- set position_name =
+            [
+                "次位",
+                "第2位",
+                "第2名",
+            ] -%}
+        {%- elif rank == 3 -%}
+            {%- set position_name =
+            [
+                "第3位",
+                "第3名",
+            ] -%}
+        {%- elif rank == 4 -%}
+            {%- set position_name =
+            [
+                "第4位",
+                "第4名",
+            ] -%}
+        {%- elif rank == 5 -%}
+            {%- set position_name =
+            [
+                "第5位",
+                "第5名",
+            ] -%}
+        {%- elif rank == 6 -%}
+            {%- set position_name =
+            [
+                "第6位",
+                "第6名",
+            ] -%}
+        {%- endif -%}
+        {# 與前面的聯播 #}
+        {%- if description_count > 0 -%}
+            {%- if rank == 1 -%}
+                {%- set words =
+                [
+                    "以%s分，雄居积分榜%s" % (points, position_name|random),
+                    "以%s分，小组登顶" % (points)
+                ] -%}
+            {%- elif rank == 6 -%}
+                {%- set words =
+                [
+                    "以%s分，小组垫底" % (points)
+                ] -%}
+            {%- elif rank_diff > 0 -%}
+                {%- set words =
+                [
+                    "以%s分，跃居积分榜%s" % (points, position_name|random)
+                ] -%}
+            {%- elif rank_diff < 0 -%}
+                {%- set words =
+                [
+                    "以%s分，下滑到积分榜%s" % (points, position_name|random)
+                ] -%}
+            {%- elif rank_diff == 0 -%}
+                {%- set words =
+                [
+                    "以%s分，稳居小组%s" % (points, position_name|random)
+                ] -%}
+            {%- endif -%}
+        {# 單獨播 #}
+        {%- else -%}
+            {%- if rank == 1 -%}
+                {%- set words =
+                [
+                    "以%s分，雄居积分榜%s" % (points, position_name|random),
+                    "以%s分，小组登顶" % (points)
+                ] -%}
+            {%- elif rank == 6 -%}
+                {%- set words =
+                [
+                    "以%s分，小组垫底" % (points)
+                ] -%}
+            {%- elif rank_diff > 0 -%}
+                {%- set words =
+                [
+                    "以%s分，跃居积分榜%s" % (points, position_name|random)
+                ] -%}
+            {%- elif rank_diff < 0 -%}
+                {%- set words =
+                [
+                    "以%s分，下滑到积分榜%s" % (points, position_name|random)
+                ] -%}
+            {%- elif rank_diff == 0 -%}
+                {%- set words =
+                [
+                    "以%s分，稳居小组%s" % (points, position_name|random)
+                ] -%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- if words|length >0 -%}
+            {{ words|random }}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro next_match_description(round, team_insight, description_count) -%}
+    {%- set words = [] -%}
+    {%- set rank = team_insight.point_leaderboard.rank -%}
+    {%- if team_insight.next_match != None and round > 2 -%}
+        {%- set team_name_list = [] -%}
+        {%- for next_match_info in team_insight.next_match -%}
+            {%- do team_name_list.append(next_match_info.team_name) -%}
+        {%- endfor -%}
+        {%- if team_name_list | length > 1 -%}
+            {%- set words =
+            [
+                "淘汰赛将面对%s其中一队" % (team_name_list | join("、"))
+            ] -%}
+        {%- else -%}
+            {%- set words =
+            [
+                "淘汰赛将面对%s" % (team_name_list | join("、"))
+            ] -%}
+        {%- endif -%}
+    {%- elif team_insight.next_match == None and round == 3 and rank > 2 -%}
+        {%- set words =
+        [
+            "未能出线"
+        ] -%}
+    {%- endif -%}
+    {%- if words|length >0 -%}
+        {{ words|random }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro player_insight_by_team(prefix, player_insights) -%}
+    {%- set players_descriptions = [] -%}
+    {%- for player_insight in player_insights -%}
+        {%- set player_name = player_insight.player_name -%}
+        {%- set player_nicknames = player_insight.nicknames -%}
+        {%- set descriptions = [] -%}
+        {%- set words = [] -%}
+        {# 1. 连续XX场进球 #}
+        {%- if player_insight.goal_streak != None -%}
+            {%- set words =
+            [
+                "%s连续%s场，打入%s球" % (player_name,player_insight.goal_streak.duration, player_insight.goal_streak.goals),
+            ] -%}
+            {%- do descriptions.append(words|random) -%}
+        {%- endif -%}
+        {# 2. 赛季进球数 > ? #}
+        {%- set words = [] -%}
+        {%- if player_insight.goal_season_total != None and player_insight.goal_leaderboard == None-%}
+            {# 單獨播。 #}
+            {%- if player_insight.goal_streak == None -%}
+                {%- set words =
+                [
+                    "%s赛季进球已经达到%s球" % (player_name,player_insight.goal_season_total)
+                ] -%}
+            {%- endif -%}
+            {# 前面有播，而且後面沒有要播的（如果後面有的話，進球數直接交給後面播） #}
+            {%- if player_insight.goal_streak != None -%}
+                {%- set words =
+                [
+                    "赛季进球达到%s球" % (player_insight.goal_season_total)
+                ] -%}
+            {%- endif -%}
+            {%- do descriptions.append(words|random) -%}
+        {%- endif -%}
+        {# 3. 进球榜前1，或排名上升且前3 #}
+        {%- set words = [] -%}
+        {%- if player_insight.goal_leaderboard != None -%}
+            {# 準備position name #}
+            {%- if player_insight.goal_leaderboard.rank == 1 -%}
+                {%- set position_name =
+                [
+                    "首位",
+                    "第1位",
+                    "第1名",
+                ] -%}
+            {%- elif player_insight.goal_leaderboard.rank == 2 -%}
+                {%- set position_name =
+                [
+                    "次位",
+                    "第2位",
+                    "第2名",
+                ] -%}
+            {%- elif player_insight.goal_leaderboard.rank == 3 -%}
+                {%- set position_name =
+                [
+                    "第3位",
+                    "第3名",
+                ] -%}
+            {%- endif -%}
+            {# 與1.聯播 #}
+            {%- if player_insight.goal_streak != None -%}
+                {%- if player_insight.goal_leaderboard.rank == 1 -%} {# 進球榜第一位 #}
+                    {%- set words =
+                    [
+                        "以%s球雄居进球榜%s" % (player_insight.goal_leaderboard.goals, position_name|random)
+                    ] -%}
+                {%- else -%} {# 進球榜前三＆排名上升 #}
+                    {%- set words =
+                    [
+                        "以%s进球数上升至进球榜%s" % (player_insight.goal_leaderboard.goals, position_name|random)
+                    ] -%}
+                {%- endif -%}
+            {# 單獨播。 #}
+            {%- else -%}
+                {%- if player_insight.goal_leaderboard.rank == 1 -%} {# 進球榜第一位 #}
+                    {%- set words =
+                    [
+                        "%s以%s粒进球，雄居进球榜%s" % (player_name, player_insight.goal_leaderboard.goals, position_name|random)
+                    ] -%}
+                {%- else -%} {# 進球榜前三＆排名上升 #}
+                    {%- set words =
+                    [
+                        "%s本场进球后，以%s进球数，上升至进球榜%s" % (player_name, player_insight.goal_leaderboard.goals, position_name|random)
+                    ] -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- do descriptions.append(words|random) -%}
+        {%- endif -%}
+        {%- set player_description = descriptions|join("，") -%}
+        {%- if player_description != "" -%}
+            {%- do players_descriptions.append(player_description)-%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if players_descriptions | length > 0 -%}
+        {{prefix}}{{players_descriptions | join("，")}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro player_insight(home_player_insight, away_player_insight) -%}
+    {%- set descriptions = [] -%}
+    {%- set result = player_insight_by_team("", home_player_insight) -%}
+    {%- if result -%}
+        {%- do descriptions.append(result) -%}
+    {%- endif -%}
+    {%- set result = player_insight_by_team("", away_player_insight) -%}
+    {%- if result -%}
+        {%- do descriptions.append(result) -%}
+    {%- endif -%}
+    {%- if descriptions | length > 0 -%}
+        {%- set words =
+        [
+            "本场进球后",
+            "进球后",
+        ] -%}
+        {{words | random}}{{descriptions | join("，")}}{{"。"}}
+    {%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro team_insight_by_team(round, prefix, team_insight, score_diff) -%}
+    {%- if team_insight != None -%}
+        {%- set descriptions = [] -%}
+        {# 1. 連勝/敗 #}
+        {%- set result = wl_streak_description(prefix, team_insight, score_diff) -%}
+        {%- if result -%}
+            {%- do descriptions.append(result) -%}
+        {%- endif -%}
+
+        {# 2. 連續不失球 #}
+        {%- set result = shutout_description(team_insight, descriptions|length) -%}
+        {%- if result -%}
+            {%- do descriptions.append(result) -%}
+        {%- endif -%}
+
+        {# 3. 積分榜 #}
+        {%- set result = point_description(team_insight, descriptions|length) -%}
+        {%- if result -%}
+            {%- do descriptions.append(result) -%}
+        {%- endif -%}
+
+        {# 4. 晉級 #}
+        {%- set result = next_match_description(round, team_insight, descriptions|length) -%}
+        {%- if result -%}
+            {%- do descriptions.append(result) -%}
+        {%- endif -%}
+
+        {# 結果組合輸出 #}
+        {%- if descriptions | length > 0 -%}
+            {{prefix}}{{descriptions | join("，")}}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro team_insight(round, home_team_insight, away_team_insight, home_name, away_name, home_score, away_score) -%}
+    {%- set descriptions = [] -%}
+    {%- set result = team_insight_by_team(round, home_name, home_team_insight, home_score-away_score) -%}
+    {%- if result -%}
+        {%- do descriptions.append(result) -%}
+    {%- endif -%}
+    {%- set result = team_insight_by_team(round, away_name, away_team_insight, away_score-home_score) -%}
+    {%- if result -%}
+        {%- do descriptions.append(result) -%}
+    {%- endif -%}
+    {%- if descriptions | length > 0 -%}
+        {%- set words =
+        [
+            "比赛结束后",
+            "本场结束后",
+            "本场过后",
+            "本轮过后",
+            "本轮战罢",
+            "本场战罢",
+            "比赛战罢",
+        ] -%}
+        {{words | random}}{{descriptions | join("，")}}{{"。"}}
+    {%- endif -%}
+{%- endmacro -%}

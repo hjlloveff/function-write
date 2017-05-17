@@ -1,0 +1,7 @@
+{%- macro after_intro() -%}
+    {%- set result =
+    [
+        "想知道详细的比赛结果吗?可以用球队名称去查询哦,比如“法国队的比赛”。",
+    ] -%}
+    {{-result | random-}}
+{% endmacro %}

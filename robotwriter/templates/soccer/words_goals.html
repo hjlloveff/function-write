@@ -1,0 +1,248 @@
+{%- macro  common_description(players, events, home_score, away_score) -%}
+    {%- set one_goal_temp = [] -%}
+    {%- set one_goals = [] -%}
+    {%- set two_goals = [] -%}
+    {%- set three_goals = [] -%}
+    {%- set four_goals = [] -%}
+    {%- set five_goals = [] -%}
+    {%- for player in players -%}
+        {%- if player.statistic.goals == 1 -%}
+            {%- do one_goal_temp.append(player) -%}
+        {%- elif player.statistic.goals == 2 -%}
+            {%- if player.nicknames | length > 0 -%}
+                {%- do two_goals.append(player.nicknames | random) -%}
+            {%- else -%}
+                {%- do two_goals.append(player.player_name) -%}
+            {%- endif -%}
+        {%- elif player.statistic.goals == 3 -%}
+            {%- if player.nicknames | length > 0 -%}
+                {%- do three_goals.append(player.nicknames | random) -%}
+            {%- else -%}
+                {%- do three_goals.append(player.player_name) -%}
+            {%- endif -%}
+        {%- elif player.statistic.goals == 4 -%}
+            {%- if player.nicknames | length > 0 -%}
+                {%- do four_goals.append(player.nicknames | random) -%}
+            {%- else -%}
+                {%- do four_goals.append(player.player_name) -%}
+            {%- endif -%}
+        {%- elif player.statistic.goals == 5 -%}
+            {%- if player.nicknames | length > 0 -%}
+                {%- do five_goals.append(player.nicknames | random) -%}
+            {%- else -%}
+                {%- do five_goals.append(player.player_name) -%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {# 進一球的球員會有順序問題，在這邊排順序 #}
+    {%- for event in events -%}
+        {%- if event.event_code == 1 -%}
+            {%- for one_goal_player in one_goal_temp -%}
+                {%- if one_goal_player.id == event.player_id -%}
+                    {%- if one_goal_player.nicknames | length > 0 -%}
+                        {%- do one_goals.append(one_goal_player.nicknames | random) -%}
+                    {%- else -%}
+                        {%- do one_goals.append(one_goal_player.player_name) -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {%- set goal_sentences = [] -%}
+    {%- set sentences = [""] -%}
+    {%- if five_goals | length >= 1 -%}
+        {%- set sentences =
+        [
+            "五子登科",
+            "连中五元",
+        ]-%}
+        {%- do goal_sentences.append("%s%s" % (five_goals | join('、'), sentences | random)) -%}
+    {%- endif -%}
+    {%- if four_goals | length >= 1 -%}
+        {%- set sentences =
+        [
+            "大四喜",
+        ]-%}
+        {%- do goal_sentences.append("%s%s" % (four_goals | join('、'), sentences | random)) -%}
+    {%- endif -%}
+    {%- if three_goals | length >= 1 -%}
+        {%- set sentences =
+        [
+            "上演帽子戏法",
+            "完成帽子戏法",
+            "大演帽子戏法",
+            "完美上演帽子戏法",
+        ]-%}
+        {%- do goal_sentences.append("%s%s" % (three_goals | join('、'), sentences | random)) -%}
+    {%- endif -%}
+    {%- if two_goals | length >= 1 -%}
+        {%- set sentences =
+        [
+            "梅开二度",
+            "独中两元",
+            "连入两球",
+            "打入两球",
+
+        ]-%}
+        {%- do goal_sentences.append("%s%s" % (two_goals | join('、'), sentences | random)) -%}
+    {%- endif -%}
+    {%- if one_goals | length >= 1 -%}
+        {%- if one_goals | length > 1 -%}
+            {%- set sentences =
+            [
+                "先后建功",
+                "先后进球",
+            ]-%}
+        {%- elif one_goals | length == 1 -%}
+            {%- if away_score + home_score == 1 -%}
+                {%- set sentences =
+                [
+                    "打入全场唯一进球",
+                    "打破僵局，一球杀死比赛",
+                ]-%}
+            {%- else -%}
+                {%- set sentences =
+                [
+                    "打入一球",
+                ]-%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- do goal_sentences.append("%s%s" % (one_goals | join('、'), sentences | random)) -%}
+    {%- endif -%}
+    {{ goal_sentences | join('，') }}
+{%- endmacro -%}
+
+{%- macro draw_game_description(players, events, home_score, away_score) -%}
+    {%- set results = [] -%}
+    {%- for event in events -%}
+        {%- if event.event_code == 1 -%}
+            {%- if sentences -%}
+                {%- set sentences =
+                [
+                    "%s随后扳平比分" % event.player_name,
+                ]-%}
+                {%- do results.append(sentences | random)-%}
+            {%- else -%}
+                {%- set sentences =
+                [
+                    "%s率先打入一球" % event.player_name,
+                ]-%}
+                {%- do results.append(sentences | random)-%}
+            {%- endif -%}
+        {%- elif event.event_code == 6 -%}
+            {%- if sentences -%}
+                {%- set sentences =
+                [
+                    "%s随后点球入袋扳平比分" % event.player_name,
+                ]-%}
+                {%- do results.append(sentences | random)-%}
+            {%- else -%}
+                {%- set sentences =
+                [
+                    "%s率先获得点球" % event.player_name,
+                ]-%}
+                {%- do results.append(sentences | random)-%}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {{ results | join("，") }}
+{%- endmacro -%}
+
+{%- macro own_goals_description(events, team_name) -%}
+    {%- set own_goals = [] -%}
+    {%- for event in events -%}
+        {%- if event.event_code == 2 and event.team_name == team_name -%}
+            {%- do own_goals.append(event.player_name) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if own_goals | length > 0 -%}
+        {%- set sentences =
+            [
+                "不幸攻入乌龙球",
+                "不幸自摆乌龙",
+                "不幸将球攻入自家球门",
+            ]-%}
+        {{"%s%s" % (own_goals | join('、'), sentences | random) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro  goal_intro(players, events, home_name, away_name, home_score, away_score) -%}
+    {%- set final_descriptions = [] -%}
+    {%- set goal_descriptions = [] -%}
+    {%- set home_descriptions = [] -%}
+    {%- set away_descriptions = [] -%}
+    {%- set home_common_description = common_description(players.home, events, home_score, away_score) -%}
+    {%- set away_common_description = common_description(players.away, events, home_score, away_score) -%}
+    {%- set home_own_goal_description = own_goals_description(events, home_name) -%}
+    {%- set away_own_goal_description = own_goals_description(events, away_name) -%}
+    {%- set draw_game_description_str = draw_game_description(players, events, home_score, away_score) -%}
+
+    {%- if home_score == 1 and away_score == 1 -%} {# 1:1, 0:0 不播 #}
+        {%- if home_own_goal_description == None or away_own_goal_description == None-%}      {# 1:1 #}
+            {%- if home_own_goal_description != None and away_own_goal_description != None-%} {# 其中兩個都是烏龍球 #}
+                {%- if home_own_goal_description -%}
+                    {%- do home_descriptions.append("主队" + home_own_goal_description) -%}
+                {%- endif -%}
+                {%- if away_own_goal_description -%}
+                    {%- do away_descriptions.append("客队" + away_own_goal_description) -%}
+                {%- endif -%}
+            {%- else -%}                                                                      {# 其中有一個烏龍球 #}
+                {%- if home_common_description -%}
+                    {%- do home_descriptions.append(home_common_description) -%}
+                {%- endif -%}
+                {%- if away_common_description -%}
+                    {%- do away_descriptions.append(away_common_description) -%}
+                {%- endif -%}
+                {%- if home_own_goal_description -%}
+                    {%- do home_descriptions.append(home_own_goal_description) -%}
+                {%- endif -%}
+                {%- if away_own_goal_description -%}
+                    {%- do away_descriptions.append(away_own_goal_description) -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- else -%}                                                                          {# 沒有烏龍球 #}
+            {%- do final_descriptions.append(draw_game_description_str) -%}
+        {%- endif -%}
+    {%- else -%}                                                                              {# 其中一方大於兩分 #}
+        {%- if home_score > 0 and away_score > 0 -%}                                          {# 兩邊都得分 #}
+            {%- if home_common_description -%}
+                {%- do home_descriptions.append("主队" + home_common_description) -%}
+            {%- endif -%}
+            {%- if away_common_description -%}
+                {%- do away_descriptions.append("客队" + away_common_description) -%}
+            {%- endif -%}
+        {%- else -%}                                                                          {# 有一邊沒得分 #}
+            {%- if home_common_description -%}
+                {%- do home_descriptions.append(home_common_description) -%}
+            {%- endif -%}
+            {%- if away_common_description -%}
+                {%- do away_descriptions.append(away_common_description) -%}
+            {%- endif -%}
+        {%- endif -%}
+        {%- if home_own_goal_description -%}
+            {%- do home_descriptions.append(home_own_goal_description) -%}
+        {%- endif -%}
+        {%- if away_own_goal_description -%}
+            {%- do away_descriptions.append(away_own_goal_description) -%}
+        {%- endif -%}
+    {%- endif -%}
+
+    {# 分別整合主、客隊字串 #}
+    {%- if home_descriptions | length > 0 -%}
+        {%- do final_descriptions.append(home_descriptions | join("，")) -%}
+    {%- endif -%}
+    {%- if away_descriptions | length > 0 -%}
+        {%- do final_descriptions.append(away_descriptions | join("，")) -%}
+    {%- endif -%}
+
+{# 最終字串 #}
+{%- if final_descriptions | length > 0 -%}
+    {%- set words =
+    [
+        "比赛中",
+    ] -%}
+    {{words | random}}{{ final_descriptions | join("；") }}{{"。"}}
+{%- endif -%}
+{%- endmacro -%}

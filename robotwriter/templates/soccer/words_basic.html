@@ -1,0 +1,30 @@
+{#---北京时间XXX  西甲第12轮，西班牙国家德比在伯纳乌球场打响，（时间地点，球场）-----#}
+{%- macro basic_intro(time, league, round_name, group, nicknames, stadium) -%}
+    {%- set time_intro = [""] -%}
+    {%- set round_intro = [""] -%}
+    {%- set stadium_intro = [""] -%}
+    {%- if time != None -%}
+        {%- set time_intro =
+        [
+            "北京时间%s，" %time,
+        ] -%}
+    {%- endif -%}
+    {%- if round_name != None and league != None -%}
+        {%- set round_intro =
+        [
+            "%s%s" % (league, round_name),
+        ] -%}
+    {%- endif -%}
+    {%- if stadium != None -%}
+        {%- if nicknames | length > 0 -%}
+            {%- set stadium_intro =
+            [
+                "%s在%s打响，" % (nicknames|random, stadium),
+                "%s在%s展开角逐，" % (nicknames|random, stadium),
+                "%s在%s展开激烈角逐，" % (nicknames|random, stadium),
+                "%s在%s展开激烈竞争，" % (nicknames|random, stadium),
+            ] -%}
+        {%- endif -%}
+    {%- endif -%}
+{{round_intro | random}}{{"，"}}{{stadium_intro | random}}
+{%- endmacro -%}

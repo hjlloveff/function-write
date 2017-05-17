@@ -1,0 +1,65 @@
+{%- if general.match.type == 'match' -%}
+	{%- if soccer.data.match.league_type_name == '欧洲杯' -%}
+		{%- import 'uefa_euro_2016/words_before.html' as wbefore with context -%}
+		{%- import 'uefa_euro_2016/words_after.html' as wafter with context -%}
+		{%- import 'uefa_euro_2016/words_basic.html' as wb with context -%}
+		{%- import 'uefa_euro_2016/words_score.html' as ws with context -%}
+		{%- import 'uefa_euro_2016/words_goals.html' as wg with context -%}
+		{%- import 'uefa_euro_2016/words_event.html' as we with context -%}
+		{%- import 'uefa_euro_2016/words_insight.html' as wi with context -%}
+	{%- else -%}
+		{%- import 'words_before.html' as wbefore with context -%}
+		{%- import 'words_after.html' as wafter with context -%}
+		{%- import 'words_basic.html' as wb with context -%}
+		{%- import 'words_score.html' as ws with context -%}
+		{%- import 'words_goals.html' as wg with context -%}
+		{%- import 'words_event.html' as we with context -%}
+		{%- import 'words_insight.html' as wi with context -%}
+	{%- endif -%}
+	{%- set round_name = soccer.data.match.round_name -%}
+	{%- set round_name = soccer.data.match.round_name -%}
+	{%- set round = soccer.data.match.round -%}
+	{%- set group = soccer.data.match.group -%}
+	{%- set stadium = soccer.data.match.stadium -%}
+	{%- set home_name = soccer.data.match.home_name -%}
+	{%- set away_name = soccer.data.match.away_name -%}
+	{%- set away_score = soccer.data.match.away_score -%}
+	{%- set home_score = soccer.data.match.home_score -%}
+	{%- set time = soccer.data.match.time -%}
+	{%- set match_nicknames = soccer.data.match.nicknames -%}
+	{%- set events = soccer.data.match.event -%}
+	{%- set PK_events = soccer.data.match.PK_event -%}
+	{%- set league = soccer.data.match.league_type_name -%}
+	{%- set players = soccer.data.player -%}
+	{%- set home_nicknames = soccer.data.team.home.nicknames -%}
+	{%- set away_nicknames = soccer.data.team.away.nicknames -%}
+	{%- set home_team_insight = soccer.insight.team.home -%}
+	{%- set away_team_insight = soccer.insight.team.away -%}
+	{%- set home_player_insight = soccer.insight.player.home -%}
+	{%- set away_player_insight = soccer.insight.player.away -%}
+
+	{{wbefore.before_intro()}}
+	{#-比赛、连胜、积分、newline、进球、红牌、黄牌、进球数-#}
+
+	{{-wb.basic_intro(time, league, round_name, group, match_nicknames, stadium)-}}
+	{{-ws.score_intro(home_name, home_score, away_name, away_score, home_nicknames, away_nicknames)-}}
+	{{-ws.PK_score_intro(PK_events)-}}
+	{{-wi.team_insight(round, home_team_insight, away_team_insight, home_name, away_name, home_score, away_score)}}
+{{wg.goal_intro(players, events, home_name, away_name, home_score, away_score)-}}
+	{{-we.event_intro(home_score, away_score, events)-}}
+	{{-wi.player_insight(home_player_insight, away_player_insight)-}}
+	{{- we.PK_intro(PK_events) -}}
+{%- elif general.match.type == 'fixture' or general.match.type == 'fixture_future' -%}
+	{%- import 'words_fixture.html' as wfixture with context -%}
+	{%- import 'words_fixture_before.html' as wbefore with context -%}
+	{%- import 'words_fixture_after.html' as wafter with context -%}
+	{%- set fixture = soccer.data.fixture -%}
+	{{- wbefore.before_intro(fixture) -}}
+	{%- if general.match.type == 'fixture' -%}
+		{%- set groups = soccer.data.fixture.groups -%}
+		{{- wfixture.fixture_intro(groups) -}}
+	{%- elif general.match.type == 'fixture_future' -%}
+		{%- set matches = soccer.data.fixture.matches -%}
+		{{- wfixture.fixture_future_intro(matches) -}}
+	{%- endif -%}
+{%- endif -%}

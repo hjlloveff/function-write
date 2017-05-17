@@ -1,0 +1,31 @@
+{%- macro fixture_intro(groups) -%}
+    {%- set group_words=[] -%}
+    {%- for group in groups -%}
+        {%- set group_match_words=[] -%}
+        {%- for match in group.matches -%}
+            {%- set matches=
+            [
+                "%s %s-%s %s" % (match.team1_name, match.score1, match.score2, match.team2_name)
+            ] -%}
+            {%- do group_match_words.append(matches|random) -%}
+        {%- endfor -%}
+        {%- if group.group_name -%}
+            {%- do group_words.append("%s组：\n%s" % (group.group_name, group_match_words | join("、"))) -%}
+        {%- else -%}
+            {%- do group_words.append("%s" % group_match_words | join("\n")) -%}
+        {%- endif -%}
+    {%- endfor -%}
+{{group_words | join("\n")}}
+{%- endmacro -%}
+
+{%- macro fixture_future_intro(matches) -%}
+    {%- set match_words=[] -%}
+    {%- for match in matches -%}
+        {%- set match_description=
+        [
+            "%s %s: %s VS. %s" % (match.date, match.time ,match.team1_name, match.team2_name)
+        ] -%}
+        {%- do match_words.append(match_description|random) -%}
+    {%- endfor -%}
+{{match_words | join("\n")}}
+{%- endmacro -%}

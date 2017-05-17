@@ -1,0 +1,90 @@
+{#############比赛第num分钟，A红牌被罚下################}
+{%- macro event_intro(home_score, away_score, events)  -%}
+    {%- set event_redcard = [] -%}  {#-------最后生成的文字--------#}
+    {%- set event_yellowcard = [] -%}
+    {%- set redcard_players = [] -%}  {#-----红牌球员的名称--------#}
+    {%- set yellowcard_players = [] -%}
+    {%- set yellowcard_players = [] -%}
+    {%- set redcard_times = [] -%}  {#-------红牌球员的字符串--------#}
+    {%- set des_order = [] -%}
+    {%- set des_redcard =
+    [
+        "染红离场",
+        "被判红牌，罚出场外",
+        "染红，被罚离场",
+    ] -%}
+
+    {%- if events -%}
+        {%- for player in events -%}{########多个球员获取红牌时#######}
+            {%- if player.event_name == "红牌" -%}
+                {%- do redcard_times.append(player.time) -%}
+                {%- do redcard_players.append(player.player_name) -%}
+            {%- endif -%}
+            {%- if player.event_name == "黄牌" -%}
+                {%- do yellowcard_players.append(player.player_name) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- if redcard_players | length > 0 -%}
+            {%- if redcard_players | length > 1 -%}
+                {%- set des_order =
+                [
+                    "先后",
+                    "分别",
+                    "前后",
+                ] -%}
+            {%- endif -%}
+            {%- set event_redcard =
+            [
+                "比赛的第%s分钟%s%s%s。" % (redcard_times | join("、"), redcard_players | join("、"), des_order | random, des_redcard | random)
+            ] -%}
+        {%- endif -%}
+        {{event_redcard | random}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro team_PK_intro(PK_event)  -%}
+    {%- set sentances = [] -%}
+    {%- set fail = PK_event.fail -%}
+    {%- set success = PK_event.success -%}
+    {%- set team_name = PK_event.team_name -%}
+    {%- set fail_players = PK_event.fail_players -%}
+    {%- set fail_player_names = [] -%}
+
+    {%- if fail == 0 -%}
+        {%- set words =
+        [
+            "%s全部打进" % (team_name)
+        ] -%}
+    {%- elif success == 0 -%}
+        {%- set words =
+        [
+            "%s全部射失" % (team_name),
+            "%s一球未进" % (team_name),
+        ] -%}
+    {%- else -%}
+        {%- for player in fail_players -%}
+            {%- do fail_player_names.append(player.player_name)-%}
+        {%- endfor -%}
+        {%- set words =
+        [
+            "%s%s将点球罚丢" % (team_name, fail_player_names | join("、")),
+            "%s%s点球不进" % (team_name, fail_player_names | join("、")),
+        ] -%}
+    {%- endif -%}
+    {{words | random}}
+{%- endmacro -%}
+
+{%- macro PK_intro(events)  -%}
+    {%- set team_results = [] -%}
+    {%- if events -%}
+        {%- set result = team_PK_intro(events['home']) -%}
+        {%- if result -%}
+            {%- do team_results.append(result)-%}
+        {%- endif -%}
+        {%- set result = team_PK_intro(events['away']) -%}
+        {%- if result -%}
+            {%- do team_results.append(result)-%}
+        {%- endif -%}
+        {{"点球大战中"}}{{team_results | join("，")}}
+    {%- endif -%}
+{%- endmacro -%}

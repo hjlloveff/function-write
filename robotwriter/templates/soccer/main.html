@@ -1,0 +1,14 @@
+{%- if (not soccer.data.match) and (not soccer.data.fixture) -%}
+    {%- include "template_match_not_found.html" -%}
+ {%- else -%}
+
+    {%- macro random_pick_template(template_candidates) -%}
+        {%- set template_fn = template_candidates | random -%}
+        {%- include template_fn with context -%}
+    {%- endmacro -%}
+
+
+    {{ random_pick_template(["template_game_brief.html"]) }}
+
+
+{%- endif -%}

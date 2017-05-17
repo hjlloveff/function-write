@@ -1,0 +1,8 @@
+{%- macro before_intro(fixture) -%}
+
+    {%- set result =
+    [
+        "%s%s比赛：" % (fixture.league_type_name, fixture.round_name)
+    ] -%}
+    {{result | random}}
+{% endmacro %}
