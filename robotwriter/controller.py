@@ -103,7 +103,7 @@ class SoccerV2Handler(Resource):
         resp = Response()
         cache_key = u''.join(unicode(v) if not isinstance(v, unicode) else v for v in args.values())
         cache = SoccerV2Handler.cache.get(cache_key)
-        self.logger.info('cache: %s, cache_key: %s', cache, cache_key)
+        # self.logger.info('cache: %s, cache_key: %s', cache, cache_key)
         if cache:
             resp.data = cache
             self.logger.info('cache hit(%s)', cache_key)
