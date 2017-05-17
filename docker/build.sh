@@ -1,6 +1,6 @@
 #!/bin/bash
 REPO=docker-reg.emotibot.com.cn:55688
-CONTAINER=robotwriter-webapp
+CONTAINER=robotwriter
 TAG=$(git rev-parse --short HEAD)
 DOCKER_IMAGE=$REPO/$CONTAINER:$TAG
 
