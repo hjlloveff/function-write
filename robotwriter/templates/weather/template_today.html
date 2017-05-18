@@ -29,12 +29,12 @@
 {%- set yes_day_tem = weather.data.past.yesterday.day.temperature -%}
 
 {%- set gender = user.gender -%}
-{%- set sugg_uv_short = weather.data.today.suggestions.uv.value -%}
-{%- set sugg_uv_sent = weather.data.today.suggestions.uv.text -%}
-{%- set sugg_flu_short = weather.data.today.suggestions.flu.value -%}
-{%- set sugg_flu_sent = weather.data.today.suggestions.flu.text -%}
-{%- set sugg_cloth_short = weather.data.today.suggestions.cloth.value -%}
-{%- set sugg_cloth_sent = weather.data.today.suggestions.cloth.text -%}
+{%- set sugg_uv_short = weather.data.today.suggestions.uv.value if weather.data.today.suggestions.uv is defined else "" -%}
+{%- set sugg_uv_sent = weather.data.today.suggestions.uv.text if weather.data.today.suggestions.uv is defined else "" -%}
+{%- set sugg_flu_short = weather.data.today.suggestions.flu.value if weather.data.today.suggestions.flu is defined else "" -%}
+{%- set sugg_flu_sent = weather.data.today.suggestions.flu.text if weather.data.today.suggestions.flu is defined else "" -%}
+{%- set sugg_cloth_short = weather.data.today.suggestions.cloth.value if weather.data.today.suggestions.cloth is defined else "" -%}
+{%- set sugg_cloth_sent = weather.data.today.suggestions.cloth.text if weather.data.today.suggestions.cloth is defined else "" -%}
 
 {%- set day_uv = weather.data.today.day.uv -%}
 {%- set now_tem = weather.data.today.now.temperature -%}
@@ -109,6 +109,10 @@
         {%- set text_ending = "" -%}
     {%- endif -%}
 
-    {{- p.prg("[", today_main, "],[", text_tomo, "],[", text_ending, "]") -}}
+    {%- if today_main == text_city -%}
+        {{ "小影暂时没有找到你想要的地方的天气资讯，哭哭~" }}
+    {%- else -%}
+        {{- p.prg("[", today_main, "],[", text_tomo, "],[", text_ending, "]") -}}
+    {%- endif -%}
 {%- endif -%}
 

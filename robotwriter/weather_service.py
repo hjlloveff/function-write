@@ -274,10 +274,11 @@ class WeatherLegacyOutput(dict):
             date = self.today + day * timedelta(days=1)
             date_str = date.strftime('%Y-%m-%d')
             record = self.weather_records.get(date_str)
-            # self.logger.info('>>> record(%s): %s', type(record), record)
-
             tmpl_oneday = WeatherNodeOneDay()
-            tmpl_oneday.update(record)
+            if record:
+                tmpl_oneday.update(record)
+            else:
+                self.logger.info('record(%s) is empty!!!', date_str)
             tmpl.add(tmpl_oneday)
 
         # self.logger.info(json.dumps(today_rec, indent=2, ensure_ascii=False))
@@ -326,6 +327,8 @@ class WeatherService(object):
         )
         self.logger.info('config: %s', config)
         self.jinja_template = env.get_template('main.html')
+
+        self._unit_test = False
 
     @property
     def city_id_mapping(self):
@@ -390,11 +393,23 @@ class WeatherService(object):
 
         # TODO(mike): handle city_id is None case
         weather_records = self.dao.get_records(city_q_obj.city_id)
+        self.logger.info('weather_records keys: %s', weather_records.keys())
+
+        # unit-test, make today record be empty
+        if self._unit_test:
+            n = dict()
+            for k, v in weather_records.iteritems():
+                date_k = datetime.strptime(k, '%Y-%m-%d')
+                date_k_1 = date_k + timedelta(days=1)
+                n[date_k_1.strftime('%Y-%m-%d')] = v
+            weather_records = n
+
         output = None
         try:
             output = WeatherLegacyOutput(today, city_q_obj, weather_records)
         except:
             self.logger.exception('')
+            raise
         self.logger.debug('output: %s', output)
 
         @time_calc_decorator()
