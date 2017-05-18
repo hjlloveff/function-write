@@ -390,6 +390,7 @@ class WeatherService(object):
 
         # TODO(mike): handle city_id is None case
         weather_records = self.dao.get_records(city_q_obj.city_id)
+        output = None
         try:
             output = WeatherLegacyOutput(today, city_q_obj, weather_records)
         except:
