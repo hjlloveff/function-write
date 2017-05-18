@@ -1,1 +1,6 @@
 *.pyc
+.coverage
+.tox
+.cache
+coverage.xml
+htmlcov.pyc
