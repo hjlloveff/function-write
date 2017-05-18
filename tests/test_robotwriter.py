@@ -206,8 +206,7 @@ class TestSoccerService(object):
     def test_team_not_found(self, soccer_service):
         team = u'纳放'
         ret = soccer_service.query(dict(team1=team, type=u'match'))
-        json_ret = json.loads(ret)
-        assert u'球队在这段时间好像没有比赛哦' in json_ret['answer']
+        assert u'球队在这段时间好像没有比赛哦' in ret.decode('utf-8')
 
 
 class TestTimeInfoService(object):
