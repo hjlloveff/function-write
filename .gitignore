@@ -2,5 +2,6 @@
 .coverage
 .tox
 .cache
+.DS_Store
 coverage.xml
 htmlcov
