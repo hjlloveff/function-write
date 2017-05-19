@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import json
+from collections import defaultdict
 
 from flask import Flask
 from flask import Response
@@ -29,7 +30,7 @@ def _weather_parser():
     parser.add_argument('keywords', action='append')
     parser.add_argument('gender')
     parser.add_argument('days', type=int)
-    parser.add_argument('city_name', required=True)
+    parser.add_argument('city_name')
     return parser
 
 
@@ -84,6 +85,8 @@ def setup_route(config, api):
     api.add_resource(WeatherV2Handler, '/V2/weather')
     api.add_resource(TimeInfoV2Handler, '/V2/timeinfo', '/timeinfo')
     api.add_resource(SoccerV2Handler, '/V2/soccer', '/soccer')
+
+    api.add_resource(HealthCheckHandler, '/_health_check')
 
 
 class SoccerV2Handler(Resource):
@@ -141,10 +144,9 @@ class WeatherV2Handler(Resource):
         self.logger = logging.getLogger(self.__class__.__name__)
         super(WeatherV2Handler, self).__init__()
 
-    @time_calc_decorator(statsd)
-    def get(self):
-        args = WeatherV2Handler.parser.parse_args()
-        self.logger.info('%s', args)
+    def _do_query(self, args):
+        '''Seperate this for health check to use
+        '''
         cache_key = u''.join(unicode(v) if not isinstance(v, unicode) else v for v in args.values())
         cache = WeatherV2Handler.cache.get(cache_key)
         resp = Response()
@@ -174,7 +176,14 @@ class WeatherV2Handler(Resource):
                     'answer': exp,
                     'statusCode': 500
                 }
+                resp.status_code = 500
         return resp
+
+    @time_calc_decorator(statsd)
+    def get(self):
+        args = WeatherV2Handler.parser.parse_args()
+        self.logger.info('%s', args)
+        return self._do_query(args)
 
 
 class TimeInfoV2Handler(Resource):
@@ -212,3 +221,27 @@ class TimeInfoV2Handler(Resource):
                 resp.status = 500
         return resp
 
+
+class HealthCheckHandler(WeatherV2Handler):
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        super(HealthCheckHandler, self).__init__()
+
+    @time_calc_decorator(statsd)
+    def get(self):
+        args = {
+            'city_name': u'北京',
+            'date': None,
+            'keywords': [],
+            'gender': None,
+            'days': None,
+            'time_name': None
+        }
+        resp = Response()
+        ret = super(HealthCheckHandler, self)._do_query(args)
+        if 200 <= ret.status_code < 300:
+            resp.data = u'ok'
+        else:
+            resp.status_code = ret.status_code
+            resp.data = ret.data['answer']
+        return resp

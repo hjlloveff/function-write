@@ -214,6 +214,10 @@ class TestWeatherService(object):
         ret = wther_service.query(city_name, date.strftime('%Y%m%d'))
         assert u'暂时' in ret
 
+    def test_today_weather_no_city_name(self, wther_service):
+        ret = wther_service.query()
+        assert u'在句子中加上地点再问小影一次吧~' in ret
+
 
 class TestSoccerService(object):
     def test_normal_case(self, soccer_service):

@@ -338,6 +338,8 @@ class WeatherService(object):
         return self._city_id_mapping
 
     def _get_city_info(self, city_name):
+        if not city_name:
+            return None, city_name
         pairs = city_name.split(u',')
         for pair in reversed(pairs):
             normalize_pair = self._city_nor_pattern.sub('', pair)
@@ -356,7 +358,7 @@ class WeatherService(object):
         return None, city_name
 
     @time_calc_decorator()
-    def query(self, city_name, date=None, time_name=None, keywords=None,
+    def query(self, city_name=None, date=None, time_name=None, keywords=None,
               duration=1, gender=None, templating=True):
         '''Request weather infor of city_name
 
@@ -377,7 +379,6 @@ class WeatherService(object):
         :rtype: unicode (json dump string)
 
         '''
-        assert city_name
         self.logger.debug('city_name: %s, date: %s, time_name: %s, '
                           'keywords: %s, duration: %s, gender: %s',
                           city_name, date, time_name, keywords,
@@ -392,24 +393,27 @@ class WeatherService(object):
         self.logger.debug('city_q_obj; %s', city_q_obj)
 
         # TODO(mike): handle city_id is None case
-        weather_records = self.dao.get_records(city_q_obj.city_id)
-        self.logger.info('weather_records keys: %s', weather_records.keys())
+        if not city_q_obj.city_id:
+            output = WeatherLegacyOutput(today, city_q_obj, dict())
+        else:
+            weather_records = self.dao.get_records(city_q_obj.city_id)
+            self.logger.info('weather_records keys: %s', weather_records.keys())
 
-        # unit-test, make today record be empty
-        if self._unit_test:
-            n = dict()
-            for k, v in weather_records.iteritems():
-                date_k = datetime.strptime(k, '%Y-%m-%d')
-                date_k_1 = date_k + timedelta(days=1)
-                n[date_k_1.strftime('%Y-%m-%d')] = v
-            weather_records = n
+            # unit-test, make today record be empty
+            if self._unit_test:
+                n = dict()
+                for k, v in weather_records.iteritems():
+                    date_k = datetime.strptime(k, '%Y-%m-%d')
+                    date_k_1 = date_k + timedelta(days=1)
+                    n[date_k_1.strftime('%Y-%m-%d')] = v
+                weather_records = n
 
-        output = None
-        try:
-            output = WeatherLegacyOutput(today, city_q_obj, weather_records)
-        except:
-            self.logger.exception('')
-            raise
+            output = None
+            try:
+                output = WeatherLegacyOutput(today, city_q_obj, weather_records)
+            except:
+                self.logger.exception('')
+                raise
         self.logger.debug('output: %s', output)
 
         @time_calc_decorator()
