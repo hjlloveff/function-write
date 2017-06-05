@@ -79,7 +79,7 @@
             sky_tmrw, aqi_tmrw, wind_level_tmrw, min_tem_tmrw, max_tem_tmrw,
             sky_tdat, aqi_tdat, wind_level_tdat, min_tem_tdat, max_tem_tdat) -%}
 {%- else -%}
-    {%- set text_ending = suggestion.good_bless(day_sky, day_aqi, day_wind_level) -%}
+    {%- set text_ending = suggestion.good_bless(day_sky, day_aqi, day_wind_level, general.time.month) -%}
 {%- endif -%}
 
 
@@ -109,10 +109,6 @@
         {%- set text_ending = "" -%}
     {%- endif -%}
 
-    {%- if today_main == text_city -%}
-        {{ "小影暂时没有找到你想要的地方的天气资讯，哭哭~" }}
-    {%- else -%}
-        {{- p.prg("[", today_main, "],[", text_tomo, "],[", text_ending, "]") -}}
-    {%- endif -%}
+    {{- p.prg("[", today_main, "],[", text_tomo, "],[", text_ending, "]") -}}
 {%- endif -%}
 

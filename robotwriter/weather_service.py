@@ -225,7 +225,8 @@ class WeatherLegacyOutput(dict):
                 u'weekday': self.today.weekday() + 1,
                 u'date': self.today.strftime('%Y-%m-%d'),
                 u'hour': self.today.hour,
-                u'minute': self.today.minute
+                u'minute': self.today.minute,
+                u'month': self.today.month
             },
             u'target_time': {
                 u'start_weekday': obj.date_in_datetime.weekday() + 1,

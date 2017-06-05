@@ -33,7 +33,8 @@
             {{- p.back(temperature.min_max_range_description(max_tem, min_tem), "，") }}
             {{- p.back(wind.description_short(wind_lv), "。") }}
             {{- suggestion.outdoor( sky_val, wind_lv, 0, weekday_num ) -}}
-            {%- do sugg_good_bless.append(suggestion.good_bless(1, sky_val)) -%}
+            {%- do sugg_good_bless.append(suggestion.good_bless(sky_val,
+            none, none, general.time.month)) -%}
 
         {%- else -%}{##### 如果keywords不是空，则表示为问询，明天有雨吗等,(无法查询未来的雾霾天气)######}
             {#####e.g. [ {"std_tag":"temperature", "orig_word":"温度"}, {"std_tag":"smog", "orig_word": "雾霾"} ]#####}

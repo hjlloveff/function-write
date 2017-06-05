@@ -117,7 +117,7 @@
 {%- endmacro -%}
 
 
-{%- macro good_bless(sky, aqi, wind_level) -%}
+{%- macro good_bless(sky, aqi, wind_level, month) -%}
     {%- set result = [] -%}
     {#    "祝你有个好心情。",
         "心情好，每天都是晴天。",
@@ -150,7 +150,8 @@
         "保持年轻的心，享受阳光和温暖。",
         "要有梦想，即使遥远。",
     ]-%#}
-    {%- if sky == "clear_sky" and aqi < 100 and wind_level <= 3 -%}
+    {%- if sky == "clear_sky" and aqi is defined and aqi < 100 and wind_level
+    is defined and wind_level <= 3 -%}
         {%- set result = result + [
             "风轻云净的日子，出去透透气。",
             "阳光明媚，出行无忧。",
@@ -204,7 +205,6 @@
         "冬天来，气温降，你穿上妈妈准备的爱心秋裤了吗？",
         "真是羡慕北方的孩子，又能在冬天里打雪仗了……",
         "每当冬天来临，小影都回想起那天雪地里打的雪仗……",
-        "算算日子，春节不远啦，红包！大红包！抢红包！！！",
         "冬天了，南方人又准备要靠抖抗冻啦，为啥南方没有暖气？",
         "冬天来了，南方还是艳阳高照，北方却已大雪纷飞。",
         "冬天的北国，千里冰封，万里雪飘，想想都觉得很壮丽呢~",
@@ -232,7 +232,19 @@
         "哈哈哈，春天来了，想邀请小影出去赏花吗(〃ω〃)",
     ]-%}
 
-    {%- set result = result + spring_ending_sentences -%}
+    {%- set candidate = [] -%}
+    {%- if month is defined -%}
+        {%- if month in (12, 1, 2) -%}
+            {%- set candidate = winter_ending_sentences -%}
+        {%- elif month in (3, 4, 5) -%}
+            {%- set candidate = spring_ending_sentences -%}
+        {%- elif month in (6, 7, 8) -%}
+            {%- set candidate = summer_ending_sentences -%}
+        {%- elif month in (9, 10, 11) -%}
+            {%- set candidate = autumn_ending_sentences -%}
+        {%- endif -%}
+    {%- endif -%}
+    {%- set result = result + candidate -%}
 
 {{ result | random }}
 {%- endmacro -%}
