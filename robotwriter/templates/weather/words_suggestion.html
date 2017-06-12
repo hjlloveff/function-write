@@ -7,7 +7,7 @@
 
 
     {#---------------小雨--------------#}
-    {%- if sky == "light_rain" -%}
+    {%- if "小雨" in sky -%}
         {%- set result =
         [
             "怕你淋湿，出门要带伞哦。",
@@ -22,9 +22,9 @@
     {#---------------- 中雨、大雨、中雪、暴雪、大风----------------#}
     {%- set condition = "" -%}
     {#-------------------- rain/snow condition --------------------#}
-    {%- if (sky) and (sky != "light_rain") and ("rain" in sky) -%}
+    {%- if (sky) and (sky != "小雨") and ("雨" in sky) -%}
         {%- set condition = condition + "/big_rain" -%}
-    {%- elif sky in ("moderate_snow", "heavy_snow") -%}
+    {%- elif ("中雪" in sky) or ("暴雪" in sky)  -%}
         {%- set condition = condition + "/big_snow" -%}
     {%- else -%}
         {%- set condition = condition + "/other_sky" -%}
@@ -300,13 +300,7 @@
                 "良好的天气，可以抽时间清洗一下自己的爱车那；"
             ]-%}
         {#-----下雨天----#}
-        {%- elif sky in ("light_rain", "heavy_rain", "moderate_rain", "rain") -%}
-            {%- set result =
-            [
-                "路滑，要小心驾驶；"
-            ]-%}
-        {#-----下雪天----#}
-        {%- elif sky in ("snow", "light_snow", "moderate_snow", "heavy_snow", "sleet") -%}
+        {%- elif ("雨" in sky) or ("雪" in sky) -%}
             {%- set result =
             [
                 "路滑，要小心驾驶；"

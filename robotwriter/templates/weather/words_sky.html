@@ -1,6 +1,6 @@
 
 {%- macro description_long() -%}
-    {%- if weather.data.today.day.sky == "clear_sky" -%}
+    {%- if weather.data.today.day.sky == "晴" -%}
         {%- set sentences =
         [
             "风轻云净的日子，",
@@ -9,20 +9,20 @@
             "万里天云，",
             "太阳公公躲在云彩后面了，",
         ]-%}
-    {%- elif weather.data.today.day.sky == "scattered_clouds" -%}
+    {%- elif ("多云" in weather.data.today.day.sky) or ("阴" in weather.data.today.day.sky) -%}
         {%- set sentences =
         [
             "天空阴沉沉的，",
             "灰朦朦的天，",
             "天气略阴，",
         ]-%}
-    {%- elif weather.data.today.day.sky == "light_rain" -%}
+    {%- elif "小雨" in weather.data.today.day.sky -%}
         {%- set sentences =
         [
             "细雨绵绵，",
             "蒙蒙细雨，",
         ]-%}
-    {%- elif weather.data.today.day.sky == "snow" -%}
+    {%- elif "雪" in weather.data.today.day.sky -%}
         {%- set sentences =
         [
             "白雪皑皑，"
