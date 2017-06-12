@@ -6,7 +6,7 @@
         {{- tem_short_sen + p.end("。", [tem_short_sen]) -}}  {# 18~22度。 #}
 
     {%- elif (keyword == "rain") or (keyword == "umbrella") -%}
-        {%- if "rain" in sky_value -%}
+        {%- if "雨" in sky_value -%}
             {%- set sky_short_sen = sky.description(sky_value) -%}
             {%- set outdoor_sug_sen = suggestion.outdoor(sky_value, 0, 0, weekday_num) -%}
             {{- sky_short_sen + p.mdl("，", sky_short_sen, [outdoor_sug_sen]) + outdoor_sug_sen -}}  {# 小雨，怕你淋湿，出门要带伞哦 #}
@@ -25,7 +25,7 @@
         {%- endif -%}
 
     {%- elif (keyword == "snow") -%}
-        {%- if "snow" in sky_value -%}
+        {%- if "雪" in sky_value -%}
             {%- set sky_short_sen = sky.description(sky_value) -%}
             {%- set outdoor_sug_sen = suggestion.outdoor(sky_value, 0, 0, weekday_num) -%}
             {{- sky_short_sen + p.mdl("，", sky_short_sen, [outdoor_sug_sen]) + outdoor_sug_sen -}}  {# 小雨，怕你淋湿，出门要带伞哦 #}
