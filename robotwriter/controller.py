@@ -75,7 +75,7 @@ def setup_route(config, api):
     TimeInfoV2Handler.config = config
     TimeInfoV2Handler.service = TimeInfoService(config)
     TimeInfoV2Handler.parser = _timeinfo_parser()
-    TimeInfoV2Handler.cache = DictCache()
+    TimeInfoV2Handler.cache = DictCache(expiration=60)
 
     SoccerV2Handler.config = config
     SoccerV2Handler.service = SoccerService(config)
