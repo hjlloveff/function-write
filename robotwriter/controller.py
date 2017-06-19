@@ -204,6 +204,7 @@ class TimeInfoV2Handler(Resource):
         cache_key = u''.join(unicode(v) if not isinstance(v, unicode) else v for v in args.values())
         cache = TimeInfoV2Handler.cache.get(cache_key)
         if cache:
+            resp.data = cache
             self.logger.info('cache hit(%s)', cache_key)
         else:
             self.logger.info('cache miss(%s)', cache_key)
