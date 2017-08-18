@@ -106,8 +106,8 @@ class WeatherDao(Thread):
                                  city_id, city.city_name)
                 d[city_id] = []  # avoid get miss and call server again
                 continue
-            except Exception as exp:
-                self.logger.error('get city(%s) failed.(%s)', city_id, exp)
+            except:
+                self.logger.exception()
                 continue
             d[city_id] = resp
             self.logger.debug("%s/%s", len(d), len_city_list)
@@ -138,17 +138,26 @@ class WeatherDao(Thread):
         self._event.set()
         while self._event.is_set() or self._event.wait(update_interval) is False:
             self._event.clear()
+            self.logger.info('get city data from content server, interval=%s',
+                             self.update_interval)
             update_interval = self.update_interval
 
             # if len(self._city_list) == 0:
             #    self._update_city_list()
 
-            weather_cache_dict = self._get_all_city_weather()
+            try:
+                weather_cache_dict = self._get_all_city_weather()
+            except:
+                # unknown exception
+                self.logger.error('##### unknow exception occurred #####')
+                self.logger.exception()
+                continue
 
             # check return data_cache
             wc = weather_cache_dict.get(u'CN101010100')
             if not weather_cache_dict or not wc or len(wc) < 14:
-                self.logger.info('get CN101010100, records(%s) < 14', len(wc))
+                self.logger.info('get CN101010100, records(%s) < 14',
+                                 len(wc) if wc else '0')
 
             # update weather data
             if weather_cache_dict:

@@ -1,4 +1,6 @@
-FROM python:2.7
+FROM python:2.7-alpine
+
+RUN apk add --update bash && rm -rf /var/cache/apk/*
 
 COPY . /usr/src/app
 # RUN pip install -i http://pypi-sh.emotibot.com:3141/deployer/dev --trusted-host=pypi-sh.emotibot.com -r /usr/src/app/requirements.txt
