@@ -107,7 +107,7 @@ class WeatherDao(Thread):
                 d[city_id] = []  # avoid get miss and call server again
                 continue
             except:
-                self.logger.exception()
+                self.logger.exception('')
                 continue
             d[city_id] = resp
             self.logger.debug("%s/%s", len(d), len_city_list)
@@ -150,7 +150,7 @@ class WeatherDao(Thread):
             except:
                 # unknown exception
                 self.logger.error('##### unknow exception occurred #####')
-                self.logger.exception()
+                self.logger.exception('')
                 continue
 
             # check return data_cache
