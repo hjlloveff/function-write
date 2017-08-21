@@ -32,7 +32,11 @@
         {#------- 昨天以前 -------#}
         {{ "暂时不提供过去的天气" }}
     {%- elif date_not_found == True -%}
-        {{ "暂时没有找到该日期的天气" }}
+        {%- if start_date_idx > 6 -%}
+            {{ "距离现在"+ start_date_idx|string +"天的事情还真是说不准呢！不过七天内的天气我还是有信心的！快问问我这礼拜的天气吧！" }}
+        {%- else -%}
+            {{ "暂时没有找到该日期的天气哦" }}
+        {%- endif -%}
     {%- elif start_date_idx >= forecast -%}
         {{ "小影目前只提供未来14天内的天气" }}
     {%- elif start_date_idx == 0 -%}

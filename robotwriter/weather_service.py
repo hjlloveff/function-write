@@ -26,6 +26,7 @@ class CityQuery(object):
 
 class WeatherNodeDays(dict):
     def __init__(self):
+        super(WeatherNodeDays, self).__init__()
         self['date'] = []
         self['day_sky'] = []
         self['day_wind_direction'] = []
@@ -40,13 +41,6 @@ class WeatherNodeDays(dict):
         self['min_temperature'] = []
         # super(WeatherNodeDays, self).__init__()
 
-    def __setitem__(self, key, value):
-        if key not in self.keys():
-            super(WeatherNodeDays, self).__setitem__(key, [])  # default list
-        l = self[key]
-        l.append(value)
-        super(WeatherNodeDays, self).__setitem__(key, l)
-
     def add(self, oneday_record):
         if not oneday_record:
             return
@@ -59,7 +53,7 @@ class WeatherNodeDays(dict):
                            'aqi_level', 'max_temperature',
                            'min_temperature']:
                 continue
-            self[key] = oneday_record[key]
+            self[key].append(oneday_record[key])
 
 
 class WeatherNode(dict):
