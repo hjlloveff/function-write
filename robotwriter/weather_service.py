@@ -424,7 +424,10 @@ class WeatherService(object):
             # check if start_date is not in
             # weather['data']['future']['week']['date']
             start_date = output['general']['target_time']['start_date']
-            dates = output['weather']['data']['future']['week']['date']
+            try:
+                dates = output['weather']['data']['future']['week']['date']
+            except:
+                dates = []
             self.logger.info('start_date: %s, dates: %s', start_date, dates)
             for d in dates:
                 if not isinstance(d, unicode):
