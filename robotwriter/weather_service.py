@@ -182,7 +182,8 @@ class WeatherLegacyOutput(dict):
         'time': {},
         'target_time': {},
         'subfunction': {},
-        'keywords': []
+        'keywords': [],
+        'date_not_found': True/False
         }
         '''
         def _generate_keyword(keywords_list):
@@ -237,7 +238,8 @@ class WeatherLegacyOutput(dict):
                 u'forecast': WeatherLegacyOutput.SUPPORT_FORECAST_DAYS,
             },
             u'subfunction': None,
-            u'keywords': _generate_keyword(obj.keywords)
+            u'keywords': _generate_keyword(obj.keywords),
+            u'date_not_found': True
         }
         self.logger.debug('ret: %s', ret)
         return ret
@@ -419,6 +421,19 @@ class WeatherService(object):
 
         @time_calc_decorator()
         def apply_template(obj_template, output):
+            # check if start_date is not in
+            # weather['data']['future']['week']['date']
+            start_date = output['general']['target_time']['start_date']
+            dates = output['weather']['data']['future']['week']['date']
+            self.logger.info('start_date: %s, dates: %s', start_date, dates)
+            for d in dates:
+                if not isinstance(d, unicode):
+                    continue
+                self.logger.info('start_date: %s, d: %s',
+                                 start_date, d.replace('-', ''))
+                if start_date == d.replace('-', ''):
+                    output['general']['date_not_found'] = False
+                    break
             return obj_template.render(output)
 
         # self.logger.debug(json.dumps(output, indent=2, ensure_ascii=False))

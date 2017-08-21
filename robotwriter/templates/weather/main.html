@@ -26,10 +26,13 @@
 
     {%- set start_date_idx = general.target_time.relative_idx[0] -%}
     {%- set forecast = general.target_time.forecast -%}
+    {%- set date_not_found = general.date_not_found -%}
 
     {%- if start_date_idx < 0 -%}
         {#------- 昨天以前 -------#}
         {{ "暂时不提供过去的天气" }}
+    {%- elif date_not_found == True -%}
+        {{ "暂时没有找到该日期的天气" }}
     {%- elif start_date_idx >= forecast -%}
         {{ "小影目前只提供未来14天内的天气" }}
     {%- elif start_date_idx == 0 -%}
