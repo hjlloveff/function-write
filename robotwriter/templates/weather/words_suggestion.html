@@ -2,46 +2,47 @@
 
 {%- macro outdoor(sky, wind_level, aqi, weekday) -%}
     {%- set result = [""] -%}
+    
     {#---------------阴、小雪、小雨夹雪、中风--------------#}
     {#%- if sky in ("scattered_clouds", "light_snow")  or  ( aqi >= 100 and aqi <= 150 ) or  wind_level in (4, 5) -%#}
 
+    {%- if (sky) -%}
+        {#---------------小雨--------------#}
+        {%- if "小雨" in sky -%}
+            {%- set result =
+            [
+                "怕你淋湿，出门要带伞哦。",
+                "带上小花伞，不要让小雨欺负了哦^_^",
+                "出门带上伞吧，弄湿发型多不好。",
+                "雨虽小，不过以防万一还是请带上伞。",
+            ] -%}
+        {%- endif -%}
 
-    {#---------------小雨--------------#}
-    {%- if "小雨" in sky -%}
-        {%- set result =
-        [
-            "怕你淋湿，出门要带伞哦。",
-            "带上小花伞，不要让小雨欺负了哦^_^",
-            "出门带上伞吧，弄湿发型多不好。",
-            "雨虽小，不过以防万一还是请带上伞。",
-        ] -%}
-    {%- endif -%}
 
-
-    {#---------------------- a condition str ----------------------#}
-    {#---------------- 中雨、大雨、中雪、暴雪、大风----------------#}
-    {%- set condition = "" -%}
-    {#-------------------- rain/snow condition --------------------#}
-    {%- if (sky) and (sky != "小雨") and ("雨" in sky) -%}
-        {%- set condition = condition + "/big_rain" -%}
-    {%- elif ("中雪" in sky) or ("暴雪" in sky)  -%}
-        {%- set condition = condition + "/big_snow" -%}
-    {%- else -%}
-        {%- set condition = condition + "/other_sky" -%}
+        {#---------------------- a condition str ----------------------#}
+        {#---------------- 中雨、大雨、中雪、暴雪、大风----------------#}
+        {%- set condition = "" -%}
+        {#-------------------- rain/snow condition --------------------#}
+        {%- if (sky) and (sky != "小雨") and ("雨" in sky) -%}
+            {%- set condition = condition + "/big_rain" -%}
+        {%- elif ("中雪" in sky) or ("暴雪" in sky)  -%}
+            {%- set condition = condition + "/big_snow" -%}
+        {%- else -%}
+            {%- set condition = condition + "/other_sky" -%}
+        {%- endif -%}
+        {#---------------------- wind_condition ----------------------#}
+        {%- if wind_level > 5 -%}
+            {%- set condition = condition + "/big_wind" -%}
+        {%- else -%}
+            {%- set condition = condition + "/little_wind" -%}
+        {%- endif -%}
+        {#---------------------- weekday/weekend ----------------------#}
+        {%- if weekday in (1, 2, 3, 4, 5) -%}
+            {%- set condition = condition + "/weekday" -%}
+        {%- elif weekday in (6, 7) -%}
+            {%- set condition = condition + "/weekend" -%}
+        {%- endif -%}
     {%- endif -%}
-    {#---------------------- wind_condition ----------------------#}
-    {%- if wind_level > 5 -%}
-        {%- set condition = condition + "/big_wind" -%}
-    {%- else -%}
-        {%- set condition = condition + "/little_wind" -%}
-    {%- endif -%}
-    {#---------------------- weekday/weekend ----------------------#}
-    {%- if weekday in (1, 2, 3, 4, 5) -%}
-        {%- set condition = condition + "/weekday" -%}
-    {%- elif weekday in (6, 7) -%}
-        {%- set condition = condition + "/weekend" -%}
-    {%- endif -%}
-
 
     {#-----------雨|雨+风------------#}
     {%- if condition == "/big_rain/big_wind/weekday" -%}
