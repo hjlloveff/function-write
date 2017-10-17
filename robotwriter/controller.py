@@ -52,7 +52,8 @@ def _timeinfo_parser():
     parser.add_argument('date', type=str, required=True)
     parser.add_argument('type', type=str, required=True)
     parser.add_argument('time_name')
-    parser.add_argument('lunar', type=str)
+    parser.add_argument('lunar', type=str)  # legacy param.
+    parser.add_argument('lunar_str')
     parser.add_argument('festival')
     return parser
 
@@ -214,7 +215,8 @@ class TimeInfoV2Handler(Resource):
                     args['type'],
                     time_name=args['time_name'],
                     lunar_date=args['lunar'],
-                    festival=args['festival']
+                    festival=args['festival'],
+                    lunar_str=args['lunar_str']
                 )
                 TimeInfoV2Handler.cache.update(cache_key, resp.data)
             except Exception as exp:

@@ -5,6 +5,7 @@
 {%- set lunar_month = general.lunar.month -%}
 {%- set lunar_day = general.lunar.day -%}
 {%- set festival = general.festival -%}
+{%- set lunar_str = general.lunar.str -%}
 
 {%- import 'words_general.html' as common -%}
 {%- set weekday_str = "，" + common.weekday(weekday) -%}
@@ -16,11 +17,16 @@
     {%- set time_name = "" -%}
 {%- endif -%}
 
-{%- if lunar_month == None -%}
-    {%- set lunar_date = "" -%}
+{%- if lunar_str == None -%}
+    {%- if lunar_month == None -%}
+        {%- set lunar_date = "" -%}
+    {%- else -%}
+        {%- set lunar_date = "，农历%d月%d号" % (lunar_month, lunar_day) -%}
+    {%- endif-%}
 {%- else -%}
-    {%- set lunar_date = "，农历%d月%d号" % (lunar_month, lunar_day) -%}
-{%- endif-%}
+    {%- set lunar_date = "，%s" % (lunar_str) -%}
+{%- endif -%}
+
 
 {%- if festival == None -%}
     {%- set festival_str = "。" -%}

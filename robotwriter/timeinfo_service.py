@@ -8,11 +8,13 @@ from .common import time_calc_decorator
 
 
 class TimeInfoOutput(dict):
-    def __init__(self, date, type_, time_name, lunar_date, festival):
+    def __init__(self, date, type_, time_name, lunar_date, festival,
+                 lunar_str):
         self.date = date
         self.type_ = type_
         self.time_name = time_name
         self.lunar_date = lunar_date
+        self.lunar_str = lunar_str
         self.festival = festival
 
         self['general'] = self._generate_general()
@@ -43,6 +45,7 @@ class TimeInfoOutput(dict):
             },
             "query_type": self.type_,
             "lunar": {
+                "str": self.lunar_str if self.lunar_str else None,
                 "month": lunar_datetime.month if lunar_datetime else None,
                 "day": lunar_datetime.day if lunar_datetime else None
             },
@@ -89,7 +92,7 @@ class TimeInfoService(object):
 
     @time_calc_decorator()
     def query(self, date, type_, time_name=None, templating=True,
-              lunar_date=None, festival=None):
+              lunar_date=None, festival=None, lunar_str=None):
         assert date and type_
 
         @time_calc_decorator()
@@ -99,7 +102,8 @@ class TimeInfoService(object):
         self.logger.info('date: %s, type_: %s, time_name: %s, templating: %s'
                          ', lunar_date: %s, festival: %s',
                          date, type_, time_name, templating, lunar_date, festival)
-        output = TimeInfoOutput(date, type_, time_name, lunar_date, festival)
+        output = TimeInfoOutput(date, type_, time_name, lunar_date, festival,
+                                lunar_str)
         if templating:
             return apply_template(self.jinja_template, output)
         return output
