@@ -85,6 +85,14 @@ class WeatherNodeNow(WeatherNode):
             self['temperature'] = mapping.get('now_temperature')
             self['wind_direction'] = mapping.get('now_wind_direction')
 
+            # adjust now temperatue to avoid now temp over the range
+            if self['max_temperature'] is not None and \
+                    self['temperature'] > self['max_temperature']:
+                self['temperature'] = self['max_temperature']
+            elif self['min_temperature'] is not None and \
+                    self['temperature'] < self['min_temperature']:
+                self['temperature'] = self['min_temperature']
+
 
 class WeatherNodeOneDay(WeatherNode):
     def __init__(self, mapping=None):

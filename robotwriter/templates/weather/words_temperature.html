@@ -58,12 +58,12 @@
     {%- if (max_tem is defined) and (max_tem is not none) and (min_tem is defined) and (min_tem is not none) -%}
         {%- set sentences =
         [
-            "%d℃~%d℃"     % (min_tem, max_tem),
-            "气温%d℃~%d℃" % (min_tem, max_tem),
-            "全天%d℃~%d℃" % (min_tem, max_tem),
-            "%d~%d度"     % (min_tem, max_tem),
-            "气温%d~%d度" % (min_tem, max_tem),
-            "全天%d~%d度" % (min_tem, max_tem),
+            "预计%d℃~%d℃"     % (min_tem, max_tem),
+            "预计气温%d℃~%d℃" % (min_tem, max_tem),
+            "全天预计%d℃~%d℃" % (min_tem, max_tem),
+            "预计%d~%d度"     % (min_tem, max_tem),
+            "预计气温%d~%d度" % (min_tem, max_tem),
+            "预计全天%d~%d度" % (min_tem, max_tem),
         ]-%}
     {%- else -%}
         {%- set sentences = [] -%}
