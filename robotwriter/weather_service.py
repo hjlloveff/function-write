@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 import re
 import logging
@@ -9,6 +10,13 @@ import jinja2
 
 from .dao import WeatherDao
 from .common import time_calc_decorator
+
+
+class CityNode(dict):
+    def __init__(self, raw):
+        super(CityNode, self).__init__(raw)
+        for k, v in self.iteritems():
+            setattr(self, k, v)
 
 
 class CityQuery(object):
@@ -339,26 +347,48 @@ class WeatherService(object):
     def city_id_mapping(self):
         if not self._city_id_mapping:
             for city in self.dao.city_list:
-                self._city_id_mapping[city['city_name']].append(city)
+                self._city_id_mapping[city['city_name']].append(CityNode(city))
         return self._city_id_mapping
+
+    def _compare_province(self, target_area_list, matched_city_list):
+        assert isinstance(target_area_list, list)
+        assert isinstance(matched_city_list, list)
+        # self.logger.info('>>> target_area_list: %s',
+        #                  json.dumps(target_area_list, ensure_ascii=False))
+        # self.logger.info('>>> matched_city_list: %s',
+        #                  json.dumps(matched_city_list, ensure_ascii=False))
+        for t in target_area_list:
+            norm_area = self._city_nor_pattern.sub('', t)
+            for c in matched_city_list:
+                if norm_area == c.province:
+                    self.logger.info('return city_id: %s(%s)',
+                                     c.city_id, c.province)
+                    return c.city_id
+
+        return matched_city_list[0]['city_id']
 
     def _get_city_info(self, city_name):
         if not city_name:
             return None, city_name
         pairs = city_name.split(u',')
-        for pair in reversed(pairs):
+        rev_pairs = list(reversed(pairs))
+        for idx, pair in enumerate(rev_pairs):
             normalize_pair = self._city_nor_pattern.sub('', pair)
             li = self.city_id_mapping[normalize_pair]
             if not li:
                 continue
-
             # TODO(mike): deal with duplicated city here if need ?
             # TODO(mike): `东莞市市辖区` needs to be resolved to \
             #         `东莞市` or `东莞`, this is why we need this while loop.
-            city_id = li[0]['city_id']
-
-            if city_id == u'CN101080303':
-                continue
+            # handle duplication city name
+            if len(li) > 1:
+                city_id = self._compare_province(rev_pairs[idx+1:], li)
+            else:
+                city_id = li[0]['city_id']
+                # workaround: CN1010080303 是内蒙古海南,
+                # 但通常不带省份时，多为问海南岛
+                if city_id == u'CN101080303':
+                    continue
             return city_id, normalize_pair
         return None, city_name
 

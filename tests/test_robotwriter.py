@@ -26,7 +26,7 @@ def city_id_notfound():
 @pytest.fixture(scope='session')
 def wther_config():
     return {
-        'server_url': 'https://content-sh.emotibot.com',
+        'server_url': 'https://content.emotibot.com',
         'api_key': '2WDGS5SCH68RWDLC76BI9J6CZEKJM5QM',
         'weather_template': os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                          'robotwriter/templates/weather')
@@ -63,9 +63,11 @@ def city_list():
     }
     '''
     return [
-        {u'city_id': u'CN101071201', u'city_name': u'辽宁'},
-        {u'city_id': u'CN101010100', u'city_name': u'北京'},
-        {u'city_id': u'CN101060110', u'city_name': u'吉林'}
+        {u'city_id': u'CN101071201', u'city_name': u'辽宁', u"province": u"x", u'country': u'中国'},
+        {u'city_id': u'CN101010100', u'city_name': u'北京', u"province": u"北京", u'country': u'中国'},
+        {u'city_id': u'CN101060110', u'city_name': u'吉林', u"province": u"吉林", u'country': u'中国'},
+        {u"city_id": u"CN101051206", u"city_name": u"南山", u"province": u"黑龙江", u"country": u"中国"},
+        {u"city_id": u"CN101280604", u"city_name": u"南山", u"province": u"广东", u"country": u"中国"},
     ]
 
 
@@ -218,6 +220,22 @@ class TestWeatherService(object):
     def test_today_weather_no_city_name(self, wther_service):
         ret = wther_service.query()
         assert u'在句子中加上地点再问小影一次吧~' in ret
+
+    def test_city_name_duplicate(self, wther_service):
+        # 黑龙江/南山 and 深圳/南山
+        city_name = u'南山'
+        date = datetime.today().strftime('%Y%m%d')
+        time_name = u'今天'
+        ret = wther_service.query(city_name, date, time_name=time_name)
+        # assert False, ret
+
+    def test_city_name_duplicate2(self, wther_service):
+        # 黑龙江/南山 and 深圳/南山
+        city_name = u'广东省,深圳市,南山区,海德三道'
+        date = datetime.today().strftime('%Y%m%d')
+        time_name = u'今天'
+        ret = wther_service.query(city_name, date, time_name=time_name)
+        # assert False, ret
 
 
 class TestSoccerService(object):
