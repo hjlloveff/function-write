@@ -1,9 +1,14 @@
 #!/bin/bash
 REPO=docker-reg.emotibot.com.cn:55688
 CONTAINER=robotwriter
+DATE=`date +%Y%m%d`
 TAG=$1
+GIT_HASH=$(git rev-parse --short HEAD)
+if [ "$GIT_HASH" == "" ]; then
+    GIT_HASH="001"
+fi
 if [ ! "$TAG" ]; then
-	TAG=$(git rev-parse --short HEAD)
+    TAG="$DATE-$GIT_HASH"
 fi
 DOCKER_IMAGE=$REPO/$CONTAINER:$TAG
 

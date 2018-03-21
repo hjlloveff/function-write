@@ -126,6 +126,22 @@ timeinfo | GET | /V2/timeinfo | 取得日期时间的资讯
 	}	
 	```
 	
+	+ 同名城市天气资讯
+	
+	```
+	# 黑龙江省/南山 与广东/深圳/南山 
+	# 未指定省分时，以最先匹配到的城市为优先；优先顺序可看城市列表 (https://content.emotibot.com/weather/cities
+	
+	# 指定省分时，可找到对应的省份
+	curl -XGET 'http://{IP}:10101/V2/weather?city_name=广东省,深圳市,南山区,海德三道&days=2&date=20171111&time_name=周末'
+	
+	# Response
+	{
+  "answer": "[南山晴，中级风，小心迷伤眼睛。预计气温14℃~22℃，当前19℃。空气质量优，快大口呼吸。],[是时候脱下臃肿的冬装，换上朝气蓬勃的春装了吧]",
+  "statusCode": 200
+}
+	```
+
 ## 足球 (soccer)
 TBD
 
